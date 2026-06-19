@@ -12,6 +12,7 @@ import 'screens/alert_delivered_screen.dart';
 import 'screens/contacts_screen.dart';
 import 'screens/history_screen.dart';
 import 'screens/about_screen.dart';
+import 'screens/ai_assistant_screen.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -52,6 +53,7 @@ class SheShieldMeshApp extends StatelessWidget {
           '/contacts': (ctx) => const ContactsScreen(),
           '/history': (ctx) => const HistoryScreen(),
           '/about': (ctx) => const AboutScreen(),
+          '/ai-assistant': (ctx) => const AiAssistantScreen(),
         },
       ),
     );

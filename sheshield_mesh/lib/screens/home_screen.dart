@@ -249,6 +249,15 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                     ),
                     const SizedBox(height: 12),
                     QuickActionCard(
+                      icon: Icons.forum_rounded,
+                      label: 'Offline AI Voice Assistant',
+                      subtitle: 'Aria · Gemma 3n Safety Guidance',
+                      color: AppColors.primary,
+                      fullWidth: true,
+                      onTap: () => Navigator.of(context).pushNamed('/ai-assistant'),
+                    ),
+                    const SizedBox(height: 12),
+                    QuickActionCard(
                       icon: Icons.hub_rounded,
                       label: 'About Mesh Network',
                       subtitle: 'How device-to-device relay works',

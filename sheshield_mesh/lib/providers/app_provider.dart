@@ -1,6 +1,8 @@
+import 'dart:async';
 import 'package:flutter/foundation.dart';
 import '../models/models.dart';
 import '../services/geolocation_service.dart';
+import '../services/ai_voice_service.dart';
 
 class AppProvider extends ChangeNotifier {
   // Network Status
@@ -52,6 +54,9 @@ class AppProvider extends ChangeNotifier {
   void createNewAlert() {
     _currentAlert = AlertModel.generate(location: _liveLocation);
     notifyListeners();
+
+    // Reset voice service memory
+    AiVoiceService().clearMemory();
   }
 
   void updateAlertStatus(String status) {
@@ -65,6 +70,9 @@ class AppProvider extends ChangeNotifier {
     if (_currentAlert != null) {
       _currentAlert = _currentAlert!.copyWith(relayCount: count);
       notifyListeners();
+      if (count == 1) {
+        AiVoiceService().speak("Your emergency alert has been relayed successfully.");
+      }
     }
   }
 
@@ -77,6 +85,9 @@ class AppProvider extends ChangeNotifier {
       );
       _history.insert(0, _currentAlert!);
       notifyListeners();
+
+      // Trigger delivery announcement
+      AiVoiceService().speak("Your emergency alert has reached trusted contacts.");
     }
   }
 
