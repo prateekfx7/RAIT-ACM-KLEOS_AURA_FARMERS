@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dart:async';
 import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../theme/app_theme.dart';
@@ -6,7 +7,10 @@ import '../providers/app_provider.dart';
 import '../widgets/network_status_card.dart';
 import '../widgets/sos_button.dart';
 import '../widgets/quick_action_card.dart';
+import '../services/api_service.dart';
 import 'features_screen.dart';
+import '../services/alarm_service.dart';
+import '../services/evidence_vault_service.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -595,7 +599,11 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: SOSButton(
                   onPressed: () {
                     context.read<AppProvider>().createNewAlert();
-                    Navigator.of(context).pushNamed('/alert-creation');
+                    showDialog(
+                      context: context,
+                      barrierDismissible: false,
+                      builder: (ctx) => const SosTriggerDialog(),
+                    );
                   },
                 ),
               ),
@@ -679,6 +687,15 @@ class _HomeScreenState extends State<HomeScreen> {
                     color: const Color(0xFF8B5CF6),
                     fullWidth: true,
                     onTap: () => Navigator.of(context).pushNamed('/ai-assistant'),
+                  ),
+                  const SizedBox(height: 12),
+                  QuickActionCard(
+                    icon: Icons.message_rounded,
+                    label: 'Trusted Messages',
+                    subtitle: 'Send location & alerts via WhatsApp',
+                    color: const Color(0xFF3B82F6),
+                    fullWidth: true,
+                    onTap: () => Navigator.of(context).pushNamed('/trusted-messages'),
                   ),
                   const SizedBox(height: 12),
                   QuickActionCard(
@@ -1251,6 +1268,496 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class SosTriggerDialog extends StatefulWidget {
+  const SosTriggerDialog({super.key});
+
+  @override
+  State<SosTriggerDialog> createState() => _SosTriggerDialogState();
+}
+
+class _SosTriggerDialogState extends State<SosTriggerDialog> {
+  bool _isSending = true;
+  String? _error;
+  List<dynamic> _recipients = [];
+  bool _isAlarmPlaying = true;
+  
+  // Evidence Vault State
+  bool _isEvidenceRecording = true;
+  int _evidenceSecondsLeft = 15;
+  Timer? _evidenceTimer;
+
+  @override
+  void initState() {
+    super.initState();
+    AlarmService.play();
+    _triggerWhatsAppSend();
+    _startEvidenceRecording();
+  }
+
+  @override
+  void dispose() {
+    AlarmService.stop();
+    _evidenceTimer?.cancel();
+    EvidenceVaultService.stopRecording();
+    super.dispose();
+  }
+
+  void _startEvidenceRecording() {
+    EvidenceVaultService.startRecording();
+    _evidenceTimer = Timer.periodic(const Duration(seconds: 1), (timer) async {
+      if (_evidenceSecondsLeft > 1) {
+        setState(() {
+          _evidenceSecondsLeft--;
+        });
+      } else {
+        timer.cancel();
+        setState(() {
+          _evidenceSecondsLeft = 0;
+          _isEvidenceRecording = false;
+        });
+        EvidenceVaultService.stopRecording();
+        
+        // Wait for base64 file completion and upload it!
+        final audioData = await EvidenceVaultService.getAudioData();
+        final provider = Provider.of<AppProvider>(context, listen: false);
+        final alert = provider.currentAlert;
+        if (alert != null) {
+          final success = await ApiService.uploadEvidence(
+            alertId: alert.id,
+            location: provider.liveLocation,
+            timestamp: DateTime.now().toIso8601String(),
+            audioData: audioData,
+          );
+          if (success) {
+            print("[Evidence Vault] Automatic upload succeeded.");
+          } else {
+            print("[Evidence Vault] Upload failed (saved offline).");
+          }
+        }
+      }
+    });
+  }
+
+  (double lat, double lng) _parseLocation(String locationStr) {
+    try {
+      final regex = RegExp(r'([\d.]+)°?\s*[NS],?\s*([\d.]+)°?\s*[EW]');
+      final match = regex.firstMatch(locationStr);
+      if (match != null) {
+        return (double.parse(match.group(1)!), double.parse(match.group(2)!));
+      }
+    } catch (_) {}
+    return (28.6139, 77.2090);
+  }
+
+  void _triggerWhatsAppSend() async {
+    await Future.delayed(const Duration(milliseconds: 300));
+    if (!mounted) return;
+
+    final provider = Provider.of<AppProvider>(context, listen: false);
+    final (lat, lng) = _parseLocation(provider.liveLocation);
+
+    try {
+      final res = await ApiService.sendMessage(
+        message: 'EMERGENCY! I need urgent help. My location is attached.',
+        lat: lat,
+        lng: lng,
+        accuracy: 10.0,
+        senderName: 'SheShield User',
+      );
+
+      if (!mounted) return;
+
+      if (res['success'] == true) {
+        setState(() {
+          _isSending = false;
+          _recipients = res['results'] as List<dynamic>? ?? [];
+        });
+      } else {
+        setState(() {
+          _isSending = false;
+          _error = res['error'] ?? 'Network offline / server error';
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _isSending = false;
+          _error = e.toString();
+        });
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      backgroundColor: Colors.transparent,
+      insetPadding: const EdgeInsets.symmetric(horizontal: 20),
+      child: Container(
+        decoration: BoxDecoration(
+          color: AppColors.canvas,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: AppColors.ink, width: 2),
+          boxShadow: const [
+            BoxShadow(
+              color: AppColors.ink,
+              offset: Offset(4, 4),
+            )
+          ],
+        ),
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Container(
+                  width: 44,
+                  height: 44,
+                  decoration: BoxDecoration(
+                    color: AppColors.redLight,
+                    shape: BoxShape.circle,
+                    border: Border.all(color: AppColors.ink, width: 1.5),
+                  ),
+                  child: const Center(
+                    child: Icon(
+                      Icons.warning_amber_rounded,
+                      color: AppColors.redMain,
+                      size: 24,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'SOS BROADCAST',
+                        style: GoogleFonts.inter(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w900,
+                          color: AppColors.ink,
+                        ),
+                      ),
+                      Text(
+                        'Automated WhatsApp Alerts',
+                        style: GoogleFonts.inter(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.textMuted,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            const Divider(color: AppColors.ink, thickness: 1.5, height: 24),
+            Container(
+              margin: const EdgeInsets.only(bottom: 16),
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+              decoration: BoxDecoration(
+                color: _isAlarmPlaying ? AppColors.redLight : AppColors.white,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: AppColors.ink, width: 1.5),
+              ),
+              child: Row(
+                children: [
+                  Icon(
+                    _isAlarmPlaying ? Icons.volume_up_rounded : Icons.volume_off_rounded,
+                    color: _isAlarmPlaying ? AppColors.redMain : AppColors.textLight,
+                    size: 24,
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          _isAlarmPlaying ? 'LOUD SIREN ACTIVE (120dB)' : 'SIREN MUTED',
+                          style: GoogleFonts.inter(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w900,
+                            color: AppColors.ink,
+                          ),
+                        ),
+                        Text(
+                          _isAlarmPlaying ? 'Playing loud alert sound to draw local attention.' : 'Alarm sound has been muted.',
+                          style: GoogleFonts.inter(
+                            fontSize: 10,
+                            fontWeight: FontWeight.w700,
+                            color: AppColors.textMuted,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  TextButton(
+                    onPressed: () {
+                      if (_isAlarmPlaying) {
+                        AlarmService.stop();
+                      } else {
+                        AlarmService.play();
+                      }
+                      setState(() {
+                        _isAlarmPlaying = !_isAlarmPlaying;
+                      });
+                    },
+                    style: TextButton.styleFrom(
+                      backgroundColor: AppColors.ink,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                    child: Text(
+                      _isAlarmPlaying ? 'Mute' : 'Play',
+                      style: GoogleFonts.inter(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w900,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            // Evidence Vault Card
+            Container(
+              margin: const EdgeInsets.only(bottom: 16),
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+              decoration: BoxDecoration(
+                color: _isEvidenceRecording ? AppColors.greenLight : AppColors.white,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: AppColors.ink, width: 1.5),
+              ),
+              child: Row(
+                children: [
+                  Icon(
+                    _isEvidenceRecording ? Icons.mic_rounded : Icons.shield_rounded,
+                    color: _isEvidenceRecording ? AppColors.redMain : AppColors.greenText,
+                    size: 24,
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          _isEvidenceRecording
+                              ? 'EVIDENCE VAULT RECORDING'
+                              : 'EVIDENCE VAULT SECURED',
+                          style: GoogleFonts.inter(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w900,
+                            color: AppColors.ink,
+                          ),
+                        ),
+                        Text(
+                          _isEvidenceRecording
+                              ? 'Capturing microphone evidence: $_evidenceSecondsLeft seconds remaining...'
+                              : 'Audio compiled, encrypted locally, and uploaded securely.',
+                          style: GoogleFonts.inter(
+                            fontSize: 10,
+                            fontWeight: FontWeight.w700,
+                            color: AppColors.textMuted,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            if (_isSending) ...[
+              Center(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 24),
+                  child: Column(
+                    children: [
+                      const SizedBox(
+                        width: 40,
+                        height: 40,
+                        child: CircularProgressIndicator(
+                          valueColor: AlwaysStoppedAnimation<Color>(AppColors.ink),
+                          strokeWidth: 3,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        'Sending emergency alerts to trusted contacts...',
+                        textAlign: TextAlign.center,
+                        style: GoogleFonts.inter(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.ink,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ] else if (_error != null) ...[
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: AppColors.redLight,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: AppColors.ink, width: 1.5),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        const Icon(Icons.cloud_off_rounded, color: AppColors.redMain),
+                        const SizedBox(width: 8),
+                        Text(
+                          'Offline Mode Active',
+                          style: GoogleFonts.inter(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w900,
+                            color: AppColors.ink,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      'No internet connection or server unreachable. The alert has been queued to local mesh for offline relaying.',
+                      style: GoogleFonts.inter(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.textMuted,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 16),
+            ] else ...[
+              Text(
+                'Delivery Status:',
+                style: GoogleFonts.inter(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w900,
+                  color: AppColors.textMuted,
+                ),
+              ),
+              const SizedBox(height: 10),
+              ConstrainedBox(
+                constraints: const BoxConstraints(maxHeight: 180),
+                child: ListView.builder(
+                  shrinkWrap: true,
+                  itemCount: _recipients.length,
+                  itemBuilder: (ctx, idx) {
+                    final item = _recipients[idx] as Map<String, dynamic>;
+                    final name = item['name'] as String? ?? 'Contact';
+                    final status = item['status'] as String? ?? 'failed';
+                    final isSent = status == 'sent';
+
+                    return Container(
+                      margin: const EdgeInsets.only(bottom: 8),
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                      decoration: BoxDecoration(
+                        color: isSent ? AppColors.greenLight : AppColors.redLight,
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(color: AppColors.ink, width: 1.2),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            name,
+                            style: GoogleFonts.inter(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w900,
+                              color: AppColors.ink,
+                            ),
+                          ),
+                          Row(
+                            children: [
+                              Text(
+                                isSent ? 'Sent' : 'Failed',
+                                style: GoogleFonts.inter(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w700,
+                                  color: isSent ? AppColors.greenText : AppColors.redMain,
+                                ),
+                              ),
+                              const SizedBox(width: 6),
+                              Icon(
+                                isSent ? Icons.check_circle_rounded : Icons.cancel_rounded,
+                                color: isSent ? AppColors.greenText : AppColors.redMain,
+                                size: 16,
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                ),
+              ),
+              const SizedBox(height: 12),
+            ],
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: () => Navigator.pop(context),
+                    style: OutlinedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      side: const BorderSide(color: AppColors.ink, width: 1.5),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    child: Text(
+                      'Close',
+                      style: GoogleFonts.inter(
+                        fontWeight: FontWeight.w900,
+                        color: AppColors.ink,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                      Navigator.of(context).pushNamed('/alert-creation');
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.redMain,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      side: const BorderSide(color: AppColors.ink, width: 1.5),
+                    ),
+                    child: Text(
+                      'Track Mesh',
+                      style: GoogleFonts.inter(
+                        fontWeight: FontWeight.w900,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }

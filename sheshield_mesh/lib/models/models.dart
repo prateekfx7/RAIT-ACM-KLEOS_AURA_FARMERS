@@ -190,3 +190,80 @@ List<AlertModel> get sampleHistory => [
         deliveredAt: DateTime.now().subtract(const Duration(days: 3, hours: 9, minutes: 48)),
       ),
     ];
+
+class MessageModel {
+  final String id;
+  final String senderName;
+  final String text;
+  final double? lat;
+  final double? lng;
+  final double? accuracy;
+  final DateTime timestamp;
+  final List<MessageRecipient> recipients;
+  final String? alertId;
+
+  MessageModel({
+    required this.id,
+    required this.senderName,
+    required this.text,
+    this.lat,
+    this.lng,
+    this.accuracy,
+    required this.timestamp,
+    required this.recipients,
+    this.alertId,
+  });
+
+  factory MessageModel.fromJson(Map<String, dynamic> json) {
+    return MessageModel(
+      id: json['id'] as String,
+      senderName: json['senderName'] as String,
+      text: json['text'] as String,
+      lat: (json['lat'] as num?)?.toDouble(),
+      lng: (json['lng'] as num?)?.toDouble(),
+      accuracy: (json['accuracy'] as num?)?.toDouble(),
+      timestamp: DateTime.parse(json['timestamp'] as String),
+      recipients: (json['recipients'] as List<dynamic>? ?? [])
+          .map((r) => MessageRecipient.fromJson(r as Map<String, dynamic>))
+          .toList(),
+      alertId: json['alertId'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+    'id': id,
+    'senderName': senderName,
+    'text': text,
+    'lat': lat,
+    'lng': lng,
+    'accuracy': accuracy,
+    'timestamp': timestamp.toIso8601String(),
+    'recipients': recipients.map((r) => r.toJson()).toList(),
+    'alertId': alertId,
+  };
+
+  String get locationUrl => lat != null && lng != null
+      ? 'https://maps.google.com/?q=$lat,$lng'
+      : '';
+
+  int get sentCount => recipients.where((r) => r.status == 'sent').length;
+  int get failedCount => recipients.where((r) => r.status == 'failed').length;
+}
+
+class MessageRecipient {
+  final String name;
+  final String phone;
+  final String status;
+
+  MessageRecipient({required this.name, required this.phone, required this.status});
+
+  factory MessageRecipient.fromJson(Map<String, dynamic> json) {
+    return MessageRecipient(
+      name: json['name'] as String,
+      phone: json['phone'] as String,
+      status: json['status'] as String,
+    );
+  }
+
+  Map<String, dynamic> toJson() => {'name': name, 'phone': phone, 'status': status};
+}

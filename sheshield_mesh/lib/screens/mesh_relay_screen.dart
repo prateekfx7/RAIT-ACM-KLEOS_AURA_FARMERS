@@ -1,3 +1,4 @@
+// lib/screens/mesh_relay_screen.dart
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -16,29 +17,8 @@ class _MeshRelayScreenState extends State<MeshRelayScreen>
     with TickerProviderStateMixin {
   late AnimationController _pulseController;
   late AnimationController _lineController;
-  late AnimationController _stepsController;
-
   int _currentStep = 0;
   int _relayCount = 0;
-  final List<String> _stepLabels = [
-    'Your Device',
-    'Nearby Device Found',
-    'Relay Successful',
-    'Awaiting Connectivity',
-  ];
-  final List<IconData> _stepIcons = [
-    Icons.phone_android_rounded,
-    Icons.devices_other_rounded,
-    Icons.done_all_rounded,
-    Icons.wifi_find_rounded,
-  ];
-  final List<Color> _stepColors = [
-    AppColors.redMain,
-    const Color(0xFF8B5CF6),
-    AppColors.greenText,
-    AppColors.greenDarker,
-  ];
-
   bool _showContinue = false;
   String? _nearbyDeviceId;
 
@@ -56,35 +36,30 @@ class _MeshRelayScreenState extends State<MeshRelayScreen>
       duration: const Duration(milliseconds: 800),
     );
 
-    _stepsController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 400),
-    );
-
-    _nearbyDeviceId = context.read<AppProvider>().currentAlert?.nearbyDeviceId;
+    _nearbyDeviceId = context.read<AppProvider>().currentAlert?.nearbyDeviceId ?? "DEV-AURA94";
 
     _runSimulation();
   }
 
   void _runSimulation() async {
-    // Step 0: Your device
+    // Step 0: Scan nearby nodes
     setState(() => _currentStep = 0);
-    await Future.delayed(const Duration(milliseconds: 800));
+    await Future.delayed(const Duration(milliseconds: 1500));
 
-    // Step 1: Nearby device found
+    // Step 1: Calculate priorities & select node
     if (!mounted) return;
     setState(() => _currentStep = 1);
     _lineController.forward();
-    await Future.delayed(const Duration(milliseconds: 900));
+    await Future.delayed(const Duration(milliseconds: 2000));
 
-    // Step 2: Relay successful
+    // Step 2: Relay to priority node (Node C)
     if (!mounted) return;
     setState(() {
       _currentStep = 2;
       _relayCount = 1;
     });
     context.read<AppProvider>().updateAlertRelayCount(1);
-    await Future.delayed(const Duration(milliseconds: 900));
+    await Future.delayed(const Duration(milliseconds: 1500));
 
     // Step 3: Awaiting connectivity
     if (!mounted) return;
@@ -93,7 +68,7 @@ class _MeshRelayScreenState extends State<MeshRelayScreen>
       _showContinue = true;
     });
 
-    await Future.delayed(const Duration(milliseconds: 1500));
+    await Future.delayed(const Duration(milliseconds: 2000));
     if (!mounted) return;
     Navigator.of(context).pushReplacementNamed('/connectivity-restored');
   }
@@ -102,7 +77,6 @@ class _MeshRelayScreenState extends State<MeshRelayScreen>
   void dispose() {
     _pulseController.dispose();
     _lineController.dispose();
-    _stepsController.dispose();
     super.dispose();
   }
 
@@ -111,7 +85,7 @@ class _MeshRelayScreenState extends State<MeshRelayScreen>
     return Scaffold(
       backgroundColor: AppColors.canvas,
       appBar: AppBar(
-        title: const Text('Mesh Relay'),
+        title: const Text('Dynamic Mesh Routing'),
         leading: const SizedBox(),
         automaticallyImplyLeading: false,
       ),
@@ -119,6 +93,7 @@ class _MeshRelayScreenState extends State<MeshRelayScreen>
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(20),
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Relay Count Badge
               Container(
@@ -131,6 +106,12 @@ class _MeshRelayScreenState extends State<MeshRelayScreen>
                     color: AppColors.ink,
                     width: 1.5,
                   ),
+                  boxShadow: const [
+                    BoxShadow(
+                      color: AppColors.ink,
+                      offset: Offset(3, 3),
+                    )
+                  ],
                 ),
                 child: Row(
                   children: [
@@ -157,34 +138,140 @@ class _MeshRelayScreenState extends State<MeshRelayScreen>
                       ),
                     ),
                     const SizedBox(width: 16),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Relay Hops',
-                          style: GoogleFonts.inter(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w700,
-                            color: _relayCount == 0 ? AppColors.redDark : AppColors.greenDarker,
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Relay Hops',
+                            style: GoogleFonts.inter(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w700,
+                              color: _relayCount == 0 ? AppColors.redDark : AppColors.greenDarker,
+                            ),
                           ),
-                        ),
+                          Text(
+                            _relayCount == 0
+                                ? 'Analyzing priority nodes...'
+                                : 'Alert successfully relayed!',
+                            style: GoogleFonts.inter(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w900,
+                              color: AppColors.ink,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              const SizedBox(height: 20),
+
+              // Dynamic Priority Scoring Board
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: AppColors.white,
+                  borderRadius: BorderRadius.circular(18),
+                  border: Border.all(color: AppColors.ink, width: 1.5),
+                  boxShadow: const [
+                    BoxShadow(
+                      color: AppColors.ink,
+                      offset: Offset(3, 3),
+                    )
+                  ],
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        const Icon(Icons.star_rounded, color: Colors.orangeAccent),
+                        const SizedBox(width: 8),
                         Text(
-                          _relayCount == 0
-                              ? 'Searching for nearby devices...'
-                              : 'Alert successfully relayed!',
+                          'Dynamic Routing Scoreboard',
                           style: GoogleFonts.inter(
-                            fontSize: 15,
+                            fontSize: 14,
                             fontWeight: FontWeight.w900,
                             color: AppColors.ink,
                           ),
                         ),
                       ],
                     ),
+                    const SizedBox(height: 6),
+                    Text(
+                      'Formula: (Battery * 0.4) + (Signal * 0.3) + (Mobility * 0.3)',
+                      style: GoogleFonts.inter(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.textMuted,
+                      ),
+                    ),
+                    const Divider(color: AppColors.ink, thickness: 1.2, height: 20),
+                    
+                    // Node A
+                    _buildScoreRow(
+                      name: 'Aura Node A',
+                      battery: '88%',
+                      signal: '-62dBm',
+                      mobility: 'Stationary',
+                      score: '78',
+                      isWinner: false,
+                    ),
+                    const SizedBox(height: 8),
+                    // Node B
+                    _buildScoreRow(
+                      name: 'Aura Node B',
+                      battery: '15%',
+                      signal: '-89dBm',
+                      mobility: 'Moving away',
+                      score: '18',
+                      isWinner: false,
+                    ),
+                    const SizedBox(height: 8),
+                    // Node C
+                    _buildScoreRow(
+                      name: 'Aura Node C',
+                      battery: '65%',
+                      signal: '-70dBm',
+                      mobility: 'Moving to Network',
+                      score: '82',
+                      isWinner: true,
+                    ),
+
+                    const SizedBox(height: 14),
+                    Container(
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        color: AppColors.greenLight,
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(color: AppColors.ink, width: 1.2),
+                      ),
+                      child: Row(
+                        children: [
+                          const Icon(Icons.check_circle_rounded, color: AppColors.greenText, size: 20),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: Text(
+                              'Prioritized Node C: Best path selected due to active target convergence mobility.',
+                              style: GoogleFonts.inter(
+                                fontSize: 11,
+                                fontWeight: FontWeight.w900,
+                                color: AppColors.greenDarker,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   ],
                 ),
               ),
 
-              const SizedBox(height: 24),
+              const SizedBox(height: 20),
 
               // Mesh Visualization
               Container(
@@ -194,11 +281,17 @@ class _MeshRelayScreenState extends State<MeshRelayScreen>
                   color: AppColors.white,
                   borderRadius: BorderRadius.circular(18),
                   border: Border.all(color: AppColors.ink, width: 1.5),
+                  boxShadow: const [
+                    BoxShadow(
+                      color: AppColors.ink,
+                      offset: Offset(3, 3),
+                    )
+                  ],
                 ),
                 child: Column(
                   children: [
                     Text(
-                      'Mesh Relay Simulation',
+                      'Visual Hop Routing Path',
                       style: GoogleFonts.inter(
                         fontSize: 13,
                         fontWeight: FontWeight.w900,
@@ -206,17 +299,8 @@ class _MeshRelayScreenState extends State<MeshRelayScreen>
                         letterSpacing: 0.5,
                       ),
                     ),
-                    const SizedBox(height: 24),
-
-                    // Device visualization
+                    const SizedBox(height: 20),
                     _buildMeshVisualization(),
-
-                    const SizedBox(height: 24),
-
-                    // Step indicators
-                    ...List.generate(_stepLabels.length, (i) {
-                      return _buildStepItem(i);
-                    }),
                   ],
                 ),
               ),
@@ -224,40 +308,27 @@ class _MeshRelayScreenState extends State<MeshRelayScreen>
               const SizedBox(height: 20),
 
               // Info Cards
-              if (_nearbyDeviceId != null && _currentStep >= 1)
-                _buildInfoCard(
-                  Icons.devices_other_rounded,
-                  'Nearby Device ID',
-                  _nearbyDeviceId!,
-                  AppColors.ink,
-                ),
+              _buildInfoCard(
+                Icons.analytics_rounded,
+                'Optimal Path Selected',
+                _currentStep >= 1 ? 'Target (You) -> Node C -> Gateway Device' : 'Analyzing priority scores...',
+                AppColors.ink,
+              ),
 
-              if (_currentStep >= 1) ...[
-                const SizedBox(height: 12),
-                _buildInfoCard(
-                  Icons.inventory_2_rounded,
-                  'Alert Packet',
-                  'Encrypted · 2.4 KB · AES-256',
-                  const Color(0xFF8B5CF6),
-                ),
-              ],
+              const SizedBox(height: 12),
+              _buildInfoCard(
+                Icons.inventory_2_rounded,
+                'Emergency Alert Packet',
+                'Encrypted · 2.4 KB · Local Reverse-Block Encryption',
+                const Color(0xFF8B5CF6),
+              ),
 
-              if (_currentStep >= 2) ...[
-                const SizedBox(height: 12),
-                _buildInfoCard(
-                  Icons.check_circle_rounded,
-                  'Signal Status',
-                  'Successfully Relayed via Bluetooth LE',
-                  AppColors.greenText,
-                ),
-              ],
-
-              if (_currentStep >= 3) ...[
+              if (_relayCount > 0) ...[
                 const SizedBox(height: 12),
                 _buildInfoCard(
                   Icons.wifi_find_rounded,
-                  'Connectivity',
-                  'Monitoring for internet access...',
+                  'Gateway State',
+                  'Forwarding packet: Monitoring for active network upload...',
                   AppColors.redMain,
                 ),
               ],
@@ -293,7 +364,7 @@ class _MeshRelayScreenState extends State<MeshRelayScreen>
                         ),
                         const SizedBox(width: 12),
                         Text(
-                          'Proceeding automatically...',
+                          'Uploading vault evidence to gateway...',
                           style: GoogleFonts.inter(
                             fontSize: 14,
                             fontWeight: FontWeight.w900,
@@ -313,69 +384,133 @@ class _MeshRelayScreenState extends State<MeshRelayScreen>
     );
   }
 
+  Widget _buildScoreRow({
+    required String name,
+    required String battery,
+    required String signal,
+    required String mobility,
+    required String score,
+    required bool isWinner,
+  }) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      decoration: BoxDecoration(
+        color: isWinner ? AppColors.greenLight : AppColors.canvas.withOpacity(0.4),
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(
+          color: isWinner ? AppColors.greenText : AppColors.ink,
+          width: isWinner ? 1.8 : 1.0,
+        ),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Text(
+                      name,
+                      style: GoogleFonts.inter(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w900,
+                        color: AppColors.ink,
+                      ),
+                    ),
+                    if (isWinner) ...[
+                      const SizedBox(width: 8),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: AppColors.greenMain,
+                          borderRadius: BorderRadius.circular(6),
+                          border: Border.all(color: AppColors.ink, width: 1),
+                        ),
+                        child: Text(
+                          'PRIORITY',
+                          style: GoogleFonts.inter(
+                            fontSize: 8,
+                            fontWeight: FontWeight.w900,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  '🔋 $battery   📶 $signal   🏃 $mobility',
+                  style: GoogleFonts.inter(
+                    fontSize: 10,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.textMuted,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+            decoration: BoxDecoration(
+              color: isWinner ? AppColors.greenMain : AppColors.white,
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: AppColors.ink, width: 1.2),
+            ),
+            child: Text(
+              'Score: $score',
+              style: GoogleFonts.inter(
+                fontSize: 11,
+                fontWeight: FontWeight.w900,
+                color: AppColors.ink,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildMeshVisualization() {
     return SizedBox(
-      height: 200,
-      child: CustomPaint(
-        size: const Size(double.infinity, 200),
-        painter: _MeshPainter(
-          step: _currentStep,
-          animation: _pulseController,
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            _buildDeviceNode(
-              label: 'Your Device',
-              icon: Icons.phone_android_rounded,
-              color: AppColors.primary,
-              isActive: _currentStep >= 0,
-              isPulsing: _currentStep == 0,
-            ),
-            Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                AnimatedBuilder(
-                  animation: _lineController,
-                  builder: (context, _) {
-                    return Icon(
-                      Icons.arrow_downward_rounded,
-                      color: _currentStep >= 1
-                          ? AppColors.primary
-                          : AppColors.hairline,
-                      size: 20,
-                    );
-                  },
-                ),
-              ],
-            ),
-            _buildDeviceNode(
-              label: 'Relay Device',
-              icon: Icons.devices_other_rounded,
-              color: const Color(0xFF8B5CF6),
-              isActive: _currentStep >= 1,
-              isPulsing: _currentStep == 1,
-            ),
-            Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  Icons.arrow_downward_rounded,
-                  color: _currentStep >= 2 ? AppColors.success : AppColors.hairline,
-                  size: 20,
-                ),
-              ],
-            ),
-            _buildDeviceNode(
-              label: 'Network',
-              icon: Icons.wifi_rounded,
-              color: AppColors.success,
-              isActive: _currentStep >= 3,
-              isPulsing: _currentStep == 3,
-            ),
-          ],
-        ),
+      height: 120,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          _buildDeviceNode(
+            label: 'You',
+            icon: Icons.phone_android_rounded,
+            color: AppColors.primary,
+            isActive: _currentStep >= 0,
+            isPulsing: _currentStep == 0,
+          ),
+          Icon(
+            Icons.chevron_right_rounded,
+            color: _currentStep >= 2 ? AppColors.greenText : AppColors.textLight,
+            size: 24,
+          ),
+          _buildDeviceNode(
+            label: 'Node C (Relay)',
+            icon: Icons.done_all_rounded,
+            color: AppColors.greenText,
+            isActive: _currentStep >= 2,
+            isPulsing: _currentStep == 1,
+          ),
+          Icon(
+            Icons.chevron_right_rounded,
+            color: _currentStep >= 3 ? AppColors.greenDarker : AppColors.textLight,
+            size: 24,
+          ),
+          _buildDeviceNode(
+            label: 'Gateway Device',
+            icon: Icons.wifi_rounded,
+            color: AppColors.greenDarker,
+            isActive: _currentStep >= 3,
+            isPulsing: _currentStep == 3,
+          ),
+        ],
       ),
     );
   }
@@ -399,10 +534,10 @@ class _MeshRelayScreenState extends State<MeshRelayScreen>
                 if (isPulsing)
                   AnimatedContainer(
                     duration: const Duration(milliseconds: 300),
-                    width: 60 + (_pulseController.value * 20),
-                    height: 60 + (_pulseController.value * 20),
+                    width: 54 + (_pulseController.value * 16),
+                    height: 54 + (_pulseController.value * 16),
                     decoration: BoxDecoration(
-                      color: color.withValues(alpha: 0.1 * (1 - _pulseController.value)),
+                      color: color.withOpacity(0.12 * (1 - _pulseController.value)),
                       shape: BoxShape.circle,
                     ),
                   ),
@@ -412,8 +547,8 @@ class _MeshRelayScreenState extends State<MeshRelayScreen>
           },
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 400),
-            width: 52,
-            height: 52,
+            width: 48,
+            height: 48,
             decoration: BoxDecoration(
               color: isActive ? color : AppColors.canvas,
               shape: BoxShape.circle,
@@ -425,15 +560,15 @@ class _MeshRelayScreenState extends State<MeshRelayScreen>
             child: Icon(
               icon,
               color: isActive ? Colors.white : AppColors.textLight,
-              size: 22,
+              size: 20,
             ),
           ),
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: 6),
         Text(
           label,
           style: GoogleFonts.inter(
-            fontSize: 10,
+            fontSize: 9,
             fontWeight: FontWeight.w900,
             color: isActive ? AppColors.ink : AppColors.textLight,
           ),
@@ -443,182 +578,53 @@ class _MeshRelayScreenState extends State<MeshRelayScreen>
     );
   }
 
-  Widget _buildStepItem(int index) {
-    final isCompleted = _currentStep > index;
-    final isCurrent = _currentStep == index;
-    final isUpcoming = _currentStep < index;
-
-    final Color itemColor = isCompleted
-        ? AppColors.greenMain
-        : isCurrent
-            ? _stepColors[index]
-            : AppColors.white;
-
-    final Color iconColor = isCompleted
-        ? AppColors.ink
-        : isCurrent
-            ? Colors.white
-            : AppColors.textLight;
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 6),
+  Widget _buildInfoCard(IconData icon, String title, String value, Color color) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: AppColors.white,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: AppColors.ink, width: 1.5),
+      ),
       child: Row(
         children: [
-          AnimatedContainer(
-            duration: const Duration(milliseconds: 400),
-            width: 28,
-            height: 28,
+          Container(
+            width: 32,
+            height: 32,
             decoration: BoxDecoration(
-              color: itemColor,
-              shape: BoxShape.circle,
-              border: Border.all(
-                color: AppColors.ink,
-                width: 1.5,
-              ),
+              color: color.withOpacity(0.12),
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: color, width: 1.2),
             ),
-            child: Icon(
-              isCompleted ? Icons.check : _stepIcons[index],
-              size: 14,
-              color: iconColor,
-            ),
+            child: Icon(icon, size: 16, color: color),
           ),
           const SizedBox(width: 12),
           Expanded(
-            child: Text(
-              _stepLabels[index],
-              style: GoogleFonts.inter(
-                fontSize: 13,
-                fontWeight: isCurrent ? FontWeight.w900 : FontWeight.w700,
-                color: isUpcoming ? AppColors.textLight : AppColors.ink,
-              ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: GoogleFonts.inter(
+                    fontSize: 10,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.textLight,
+                  ),
+                ),
+                Text(
+                  value,
+                  style: GoogleFonts.inter(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w900,
+                    color: AppColors.ink,
+                  ),
+                ),
+              ],
             ),
           ),
-          if (isCurrent)
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-              decoration: BoxDecoration(
-                color: _stepColors[index].withValues(alpha: 0.12),
-                borderRadius: BorderRadius.circular(10),
-                border: Border.all(color: AppColors.ink, width: 1),
-              ),
-              child: Text(
-                'Active',
-                style: GoogleFonts.inter(
-                  fontSize: 10,
-                  fontWeight: FontWeight.w900,
-                  color: _stepColors[index],
-                ),
-              ),
-            ),
-          if (isCompleted)
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-              decoration: BoxDecoration(
-                color: AppColors.greenLight,
-                borderRadius: BorderRadius.circular(10),
-                border: Border.all(color: AppColors.ink, width: 1),
-              ),
-              child: Text(
-                'Done',
-                style: GoogleFonts.inter(
-                  fontSize: 10,
-                  fontWeight: FontWeight.w900,
-                  color: AppColors.greenDarker,
-                ),
-              ),
-            ),
         ],
       ),
     );
   }
-
-  Widget _buildInfoCard(IconData icon, String title, String value, Color color) {
-    return TweenAnimationBuilder<double>(
-      tween: Tween(begin: 0.0, end: 1.0),
-      duration: const Duration(milliseconds: 400),
-      curve: Curves.easeOut,
-      builder: (context, value2, child) {
-        return Opacity(
-          opacity: value2,
-          child: Transform.translate(
-            offset: Offset(0, (1 - value2) * 12),
-            child: child,
-          ),
-        );
-      },
-      child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: AppColors.white,
-          borderRadius: BorderRadius.circular(18),
-          border: Border.all(color: AppColors.ink, width: 1.5),
-        ),
-        child: Row(
-          children: [
-            Container(
-              width: 32,
-              height: 32,
-              decoration: BoxDecoration(
-                color: color.withValues(alpha: 0.12),
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: AppColors.ink, width: 1),
-              ),
-              child: Icon(icon, size: 16, color: color),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: GoogleFonts.inter(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w700,
-                      color: AppColors.textLight,
-                    ),
-                  ),
-                  Text(
-                    value,
-                    style: GoogleFonts.inter(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w900,
-                      color: AppColors.ink,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _MeshPainter extends CustomPainter {
-  final int step;
-  final Animation<double> animation;
-
-  _MeshPainter({required this.step, required this.animation})
-      : super(repaint: animation);
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    // Draw connecting lines between device nodes
-    final paint = Paint()
-      ..strokeWidth = 1.5
-      ..style = PaintingStyle.stroke
-      ..strokeCap = StrokeCap.round;
-
-    if (step >= 1) {
-      paint.color = AppColors.primary.withOpacity(0.3 + animation.value * 0.2);
-      // Line from your device to relay device would be drawn here
-      // The actual device nodes are drawn by the widget tree
-    }
-  }
-
-  @override
-  bool shouldRepaint(_MeshPainter oldDelegate) => true;
 }
