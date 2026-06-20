@@ -73,16 +73,16 @@ class MeshProvider with ChangeNotifier {
     _bleService.messageStream.listen((msg) async {
       _lastMessage = msg;
       notifyListeners();
-      await _apiService.sendLocation(msg);
+      await ApiService.sendLocation(msg);
     });
     // Reset fallback timer whenever a message is received
-    _fallbackTimer = Timer.periodic(Duration(seconds: 30), (_) {});
+    _fallbackTimer = Timer.periodic(const Duration(seconds: 30), (_) {});
   }
 
   // ---------- Fallback ----------
   void _startFallback() {
-    _fallbackTimer = Timer.periodic(Duration(seconds: 60), (timer) async {
-      await _apiService.triggerFallback();
+    _fallbackTimer = Timer.periodic(const Duration(seconds: 60), (timer) async {
+      await ApiService.triggerFallback();
     });
   }
 }

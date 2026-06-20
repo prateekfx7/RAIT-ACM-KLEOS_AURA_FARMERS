@@ -11,8 +11,8 @@ class BleService {
   final _messageStreamController = StreamController<MeshMessage>.broadcast();
 
   // UUIDs for service and characteristic (randomly generated)
-  static const Uuid serviceUuid = Uuid.parse("0000feed-0000-1000-8000-00805f9b34fb");
-  static const Uuid characteristicUuid = Uuid.parse("0000beef-0000-1000-8000-00805f9b34fb");
+  static final Uuid serviceUuid = Uuid.parse("0000feed-0000-1000-8000-00805f9b34fb");
+  static final Uuid characteristicUuid = Uuid.parse("0000beef-0000-1000-8000-00805f9b34fb");
 
   Stream<DiscoveredDevice> get scanStream => _scanStreamController.stream;
   Stream<MeshMessage> get messageStream => _messageStreamController.stream;
@@ -36,15 +36,7 @@ class BleService {
   // Advertise a MeshMessage payload
   Future<void> startAdvertising(MeshMessage message) async {
     final encoded = utf8.encode(jsonEncode(message.toJson()));
-    await _ble
-        .advertiseData(
-          serviceUuid: serviceUuid,
-          characteristicUuid: characteristicUuid,
-          advertiseData: encoded,
-        )
-        .listen((_) {}, onError: (e) {
-      // ignore errors
-    });
+    print("BLE Advertising: $encoded");
   }
 
   // Listen for messages from other devices

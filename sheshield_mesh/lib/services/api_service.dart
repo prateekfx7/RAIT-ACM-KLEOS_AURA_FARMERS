@@ -132,4 +132,116 @@ class ApiService {
     }
   }
 
+  // Send message with location to all trusted contacts
+  static Future<Map<String, dynamic>> sendMessage({
+    required String message,
+    required double lat,
+    required double lng,
+    required double accuracy,
+    required String senderName,
+  }) async {
+    try {
+      final response = await http.post(
+        Uri.parse('$_baseUrl/api/messages/send'),
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode({
+          'message': message,
+          'lat': lat,
+          'lng': lng,
+          'accuracy': accuracy,
+          'senderName': senderName,
+        }),
+      );
+      if (response.statusCode == 200) {
+        return json.decode(response.body) as Map<String, dynamic>;
+      }
+    } catch (e) {
+      print('ApiService.sendMessage failed: $e');
+    }
+    return {'success': false};
+  }
+
+  // Get message history
+  static Future<List<dynamic>> getMessageHistory() async {
+    try {
+      final response = await http.get(Uri.parse('$_baseUrl/api/messages/history'));
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        return data['messages'] as List<dynamic>? ?? [];
+      }
+    } catch (e) {
+      print('ApiService.getMessageHistory failed: $e');
+    }
+    return [];
+  }
+
+  // Send message to specific contacts
+  static Future<Map<String, dynamic>> sendMessageTo({
+    required String message,
+    required double lat,
+    required double lng,
+    required double accuracy,
+    required String senderName,
+    required List<String> contactIds,
+  }) async {
+    try {
+      final response = await http.post(
+        Uri.parse('$_baseUrl/api/messages/send-to'),
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode({
+          'message': message,
+          'lat': lat,
+          'lng': lng,
+          'accuracy': accuracy,
+          'senderName': senderName,
+          'contactIds': contactIds,
+        }),
+      );
+      if (response.statusCode == 200) {
+        return json.decode(response.body) as Map<String, dynamic>;
+      }
+    } catch (e) {
+      print('ApiService.sendMessageTo failed: $e');
+    }
+    return {'success': false};
+  }
+
+  // Upload locally recorded audio evidence
+  static Future<bool> uploadEvidence({
+    required String alertId,
+    required String location,
+    required String timestamp,
+    required String audioData,
+  }) async {
+    try {
+      final response = await http.post(
+        Uri.parse('$_baseUrl/api/evidence/upload'),
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode({
+          'alertId': alertId,
+          'location': location,
+          'timestamp': timestamp,
+          'audioData': audioData,
+        }),
+      );
+      return response.statusCode == 200;
+    } catch (e) {
+      print('ApiService.uploadEvidence failed: $e');
+    }
+    return false;
+  }
+
+  // Fetch uploaded evidence metadata & audio payload
+  static Future<Map<String, dynamic>?> fetchEvidence(String alertId) async {
+    try {
+      final response = await http.get(Uri.parse('$_baseUrl/api/evidence/$alertId'));
+      if (response.statusCode == 200) {
+        return json.decode(response.body) as Map<String, dynamic>;
+      }
+    } catch (e) {
+      print('ApiService.fetchEvidence failed: $e');
+    }
+    return null;
+  }
+
 }
