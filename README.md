@@ -8,7 +8,7 @@ An offline-first emergency communication system that works when everything else 
 # SheShield Mesh
 
 ![SheShield Mesh Homepage](RAIT-ACM-KLEOS_AURA_FARMERS
-/Screenshot 2026-06-20 113505)
+/Screenshot 2026-06-20 113505.png)
 
 ---
 
