@@ -5,9 +5,10 @@
 **When internet and mobile networks fail, SheShield Mesh ensures emergency SOS alerts survive, travel, and reach help.**
 
 An offline-first emergency communication system that works when everything else doesn't. Using mesh relay technology and decentralized networks, SheShield Mesh keeps emergency signals alive through network shutdowns, disasters, and remote-area blackouts.
-<p align="center">
-  <img src="RAIT-ACM-KLEOS_AURA_FARMERS/Screenshot 2026-06-20 113505" alt="SheShield Mesh Homepage" width="1000">
-</p>
+# SheShield Mesh
+
+![SheShield Mesh Homepage](RAIT-ACM-KLEOS_AURA_FARMERS
+/Screenshot 2026-06-20 113505)
 
 ---
 
