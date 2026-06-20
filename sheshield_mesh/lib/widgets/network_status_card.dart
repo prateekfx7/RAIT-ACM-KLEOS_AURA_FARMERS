@@ -21,7 +21,7 @@ class _NetworkStatusCardState extends State<NetworkStatusCard>
     _pulseController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 1400),
-    )..repeat(reverse: true);
+    );
   }
 
   @override
@@ -34,17 +34,20 @@ class _NetworkStatusCardState extends State<NetworkStatusCard>
   Widget build(BuildContext context) {
     final isOnline = context.watch<AppProvider>().isOnline;
 
+    final Color bgColor = isOnline ? AppColors.greenLight : AppColors.redLight;
+    final Color textColor = isOnline ? AppColors.greenDarker : AppColors.redDark;
+    final Color accentColor = isOnline ? AppColors.greenText : AppColors.redMain;
+
     return AnimatedContainer(
       duration: const Duration(milliseconds: 400),
       width: double.infinity,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: isOnline ? AppColors.successLight : AppColors.errorLight,
-        borderRadius: BorderRadius.circular(16),
+        color: bgColor,
+        borderRadius: BorderRadius.circular(18),
         border: Border.all(
-          color: isOnline
-              ? AppColors.success.withOpacity(0.3)
-              : AppColors.error.withOpacity(0.25),
+          color: AppColors.ink,
+          width: 1.5,
         ),
       ),
       child: Row(
@@ -60,8 +63,8 @@ class _NetworkStatusCardState extends State<NetworkStatusCard>
                       width: 44 + _pulseController.value * 12,
                       height: 44 + _pulseController.value * 12,
                       decoration: BoxDecoration(
-                        color: AppColors.error
-                            .withOpacity(0.08 * (1 - _pulseController.value)),
+                        color: AppColors.redMain
+                            .withValues(alpha: 0.08 * (1 - _pulseController.value)),
                         shape: BoxShape.circle,
                       ),
                     ),
@@ -69,7 +72,7 @@ class _NetworkStatusCardState extends State<NetworkStatusCard>
                     width: 44,
                     height: 44,
                     decoration: BoxDecoration(
-                      color: isOnline ? AppColors.success : AppColors.error,
+                      color: accentColor,
                       shape: BoxShape.circle,
                     ),
                     child: Icon(
@@ -91,8 +94,8 @@ class _NetworkStatusCardState extends State<NetworkStatusCard>
                   'Network Status',
                   style: GoogleFonts.inter(
                     fontSize: 12,
-                    fontWeight: FontWeight.w500,
-                    color: isOnline ? AppColors.success : AppColors.error,
+                    fontWeight: FontWeight.w700,
+                    color: textColor,
                     letterSpacing: 0.3,
                   ),
                 ),
@@ -104,8 +107,8 @@ class _NetworkStatusCardState extends State<NetworkStatusCard>
                     key: ValueKey(isOnline),
                     style: GoogleFonts.inter(
                       fontSize: 16,
-                      fontWeight: FontWeight.w700,
-                      color: isOnline ? AppColors.success : AppColors.error,
+                      fontWeight: FontWeight.w900,
+                      color: AppColors.ink,
                     ),
                   ),
                 ),
@@ -116,9 +119,8 @@ class _NetworkStatusCardState extends State<NetworkStatusCard>
                       : 'Mesh relay mode active',
                   style: GoogleFonts.inter(
                     fontSize: 12,
-                    color: isOnline
-                        ? AppColors.success.withOpacity(0.7)
-                        : AppColors.error.withOpacity(0.7),
+                    fontWeight: FontWeight.w500,
+                    color: textColor,
                   ),
                 ),
               ],
@@ -131,7 +133,7 @@ class _NetworkStatusCardState extends State<NetworkStatusCard>
                 width: 8,
                 height: 8,
                 decoration: BoxDecoration(
-                  color: isOnline ? AppColors.success : AppColors.error,
+                  color: accentColor,
                   shape: BoxShape.circle,
                 ),
               ),
@@ -140,8 +142,8 @@ class _NetworkStatusCardState extends State<NetworkStatusCard>
                 isOnline ? 'LIVE' : 'MESH',
                 style: GoogleFonts.inter(
                   fontSize: 10,
-                  fontWeight: FontWeight.w700,
-                  color: isOnline ? AppColors.success : AppColors.error,
+                  fontWeight: FontWeight.w900,
+                  color: textColor,
                   letterSpacing: 1,
                 ),
               ),

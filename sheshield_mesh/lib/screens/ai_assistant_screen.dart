@@ -26,10 +26,8 @@ class _AiAssistantScreenState extends State<AiAssistantScreen>
   late AnimationController _micGlowController;
 
   bool _isListening = false;
-  bool _isSpeaking = false;
   bool _isTyping = false;
   String _currentStatusText = "Aria is ready to help";
-  String _simulatedSpeechResult = "";
 
   // Voice wave status
   // 0 = idle, 1 = listening, 2 = speaking
@@ -61,37 +59,43 @@ class _AiAssistantScreenState extends State<AiAssistantScreen>
 
   Future<void> _initVoice() async {
     await _voiceService.initialize();
+    if (mounted) {
+      setState(() {
+        final isHindi = _voiceService.currentLanguageCode.startsWith("hi");
+        _currentStatusText = isHindi ? "आरिया मदद के लिए तैयार है" : "Aria is ready to help";
+      });
+    }
   }
 
   void _introduceIfEmpty() {
+    final isHindi = _voiceService.currentLanguageCode.startsWith("hi");
     if (_voiceService.memory.isEmpty) {
       setState(() {
-        _isSpeaking = true;
         _waveState = 2;
-        _currentStatusText = "Aria is speaking...";
+        _currentStatusText = isHindi ? "आरिया बोल रही है..." : "Aria is speaking...";
       });
 
-      final greeting = "Hi, I'm Aria, your offline safety assistant. I can guide you through emergency steps or check your SOS relay status. Speak or choose a question below.";
+      final greeting = isHindi
+          ? "नमस्ते, मैं आरिया हूँ, आपकी ऑफलाइन सुरक्षा सहायक। मैं आपातकालीन चरणों में आपका मार्गदर्शन कर सकती हूँ या आपके एसओएस रिले की स्थिति की जांच कर सकती हूँ। बोलें या नीचे दिए गए प्रश्नों में से चुनें।"
+          : "Hi, I'm Aria, your offline safety assistant. I can guide you through emergency steps or check your SOS relay status. Speak or choose a question below.";
       
-      _voiceService.generateGemma3nResponse("hello", _getSosStatus());
+      _voiceService.generateGemma3nResponse(isHindi ? "नमस्ते" : "hello", _getSosStatus());
       
       _voiceService.speak(
         greeting,
         onStart: () {
           if (mounted) {
             setState(() {
-              _isSpeaking = true;
               _waveState = 2;
-              _currentStatusText = "Aria is speaking...";
+              _currentStatusText = isHindi ? "आरिया बोल रही है..." : "Aria is speaking...";
             });
           }
         },
         onComplete: () {
           if (mounted) {
             setState(() {
-              _isSpeaking = false;
               _waveState = 0;
-              _currentStatusText = "Aria is listening/idle";
+              _currentStatusText = isHindi ? "आरिया तैयार है" : "Aria is ready/idle";
             });
           }
         },
@@ -131,10 +135,11 @@ class _AiAssistantScreenState extends State<AiAssistantScreen>
     if (input.trim().isEmpty) return;
 
     _voiceService.stopSpeaking();
+    final isHindi = _voiceService.currentLanguageCode.startsWith("hi");
 
     setState(() {
       _isTyping = true;
-      _currentStatusText = "Gemma 3n is thinking...";
+      _currentStatusText = isHindi ? "जेम्मा ३एन सोच रहा है..." : "Gemma 3n is thinking...";
     });
     _scrollToBottom();
 
@@ -156,18 +161,16 @@ class _AiAssistantScreenState extends State<AiAssistantScreen>
         onStart: () {
           if (mounted) {
             setState(() {
-              _isSpeaking = true;
               _waveState = 2;
-              _currentStatusText = "Aria is speaking...";
+              _currentStatusText = isHindi ? "आरिया बोल रही है..." : "Aria is speaking...";
             });
           }
         },
         onComplete: () {
           if (mounted) {
             setState(() {
-              _isSpeaking = false;
               _waveState = 0;
-              _currentStatusText = "Aria is ready";
+              _currentStatusText = isHindi ? "आरिया तैयार है" : "Aria is ready";
             });
           }
         },
@@ -178,6 +181,7 @@ class _AiAssistantScreenState extends State<AiAssistantScreen>
   // Voice trigger
   void _toggleListening() async {
     _voiceService.stopSpeaking();
+    final isHindi = _voiceService.currentLanguageCode.startsWith("hi");
 
     if (_isListening) {
       // Stop listening
@@ -185,14 +189,14 @@ class _AiAssistantScreenState extends State<AiAssistantScreen>
       setState(() {
         _isListening = false;
         _waveState = 0;
-        _currentStatusText = "Aria is ready";
+        _currentStatusText = isHindi ? "आरिया तैयार है" : "Aria is ready";
       });
     } else {
       // Start listening
       setState(() {
         _isListening = true;
         _waveState = 1;
-        _currentStatusText = "Listening...";
+        _currentStatusText = isHindi ? "सुन रहा हूँ..." : "Listening...";
       });
 
       // Force mock simulation on web due to browser microphone sandbox limits
@@ -223,7 +227,7 @@ class _AiAssistantScreenState extends State<AiAssistantScreen>
             setState(() {
               _isListening = false;
               _waveState = 0;
-              _currentStatusText = "Aria is ready";
+              _currentStatusText = isHindi ? "आरिया तैयार है" : "Aria is ready";
             });
             _showSimulatedVoiceDialog();
           }
@@ -233,7 +237,7 @@ class _AiAssistantScreenState extends State<AiAssistantScreen>
         setState(() {
           _isListening = false;
           _waveState = 0;
-          _currentStatusText = "Aria is ready";
+          _currentStatusText = isHindi ? "आरिया तैयार है" : "Aria is ready";
         });
         _showSimulatedVoiceDialog();
       }
@@ -242,13 +246,22 @@ class _AiAssistantScreenState extends State<AiAssistantScreen>
 
   // Simulation voice trigger modal
   void _showSimulatedVoiceDialog() {
-    final sampleQuestions = [
-      "I am scared.",
-      "Has my SOS been sent?",
-      "What should I do now?",
-      "How can I reach a safe location?",
-      "What happens after SOS?",
-    ];
+    final isHindi = _voiceService.currentLanguageCode.startsWith("hi");
+    final sampleQuestions = isHindi
+        ? [
+            "मुझे डर लग रहा है।",
+            "क्या मेरा एसओएस भेजा गया है?",
+            "मुझे अब क्या करना चाहिए?",
+            "सुरक्षित जगह कैसे पहुँचें?",
+            "एसओएस के बाद क्या होता है?",
+          ]
+        : [
+            "I am scared.",
+            "Has my SOS been sent?",
+            "What should I do now?",
+            "How can I reach a safe location?",
+            "What happens after SOS?",
+          ];
 
     showModalBottomSheet(
       context: context,
@@ -258,16 +271,17 @@ class _AiAssistantScreenState extends State<AiAssistantScreen>
       builder: (ctx) {
         return Container(
           padding: const EdgeInsets.all(20),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
               Row(
                 children: [
                   const Icon(Icons.keyboard_voice_rounded, color: AppColors.primary),
                   const SizedBox(width: 10),
                   Text(
-                    'Simulate Speech Input',
+                    isHindi ? 'आवाज इनपुट का अनुकरण करें' : 'Simulate Speech Input',
                     style: GoogleFonts.inter(
                       fontSize: 16,
                       fontWeight: FontWeight.w700,
@@ -278,7 +292,9 @@ class _AiAssistantScreenState extends State<AiAssistantScreen>
               ),
               const SizedBox(height: 8),
               Text(
-                'Microphone is unavailable/blocked (or running on web demo). Select a query to simulate speaking it to Aria:',
+                isHindi
+                    ? 'माइक्रोफोन अनुपलब्ध/अवरुद्ध है। आरिया से बात करने का अनुकरण करने के लिए एक प्रश्न चुनें:'
+                    : 'Microphone is unavailable/blocked (or running on web demo). Select a query to simulate speaking it to Aria:',
                 style: GoogleFonts.inter(fontSize: 12, color: AppColors.muted),
               ),
               const SizedBox(height: 16),
@@ -299,7 +315,7 @@ class _AiAssistantScreenState extends State<AiAssistantScreen>
                     setState(() {
                       _isListening = true;
                       _waveState = 1;
-                      _currentStatusText = "Aria is listening...";
+                      _currentStatusText = isHindi ? "आरिया सुन रही है..." : "Aria is listening...";
                     });
                     
                     Future.delayed(const Duration(milliseconds: 1500), () {
@@ -307,7 +323,7 @@ class _AiAssistantScreenState extends State<AiAssistantScreen>
                         setState(() {
                           _isListening = false;
                           _waveState = 0;
-                          _currentStatusText = "Aria is ready";
+                          _currentStatusText = isHindi ? "आरिया तैयार है" : "Aria is ready";
                         });
                         _handleInput(q);
                       }
@@ -318,8 +334,70 @@ class _AiAssistantScreenState extends State<AiAssistantScreen>
               const SizedBox(height: 12),
             ],
           ),
-        );
+        ),
+      );
+    },
+    );
+  }
+
+  // Language Selector bar
+  Widget _buildLanguageSelector() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          _buildLanguageChip("en-US", "🇬🇧 English"),
+          const SizedBox(width: 12),
+          _buildLanguageChip("hi-IN", "🇮🇳 हिन्दी"),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildLanguageChip(String langCode, String label) {
+    final isSelected = _voiceService.currentLanguageCode == langCode;
+    return GestureDetector(
+      onTap: () async {
+        await _voiceService.setLanguage(langCode);
+        
+        // Reset greeting and introductory messages if memory is empty or only contains the first hello response
+        if (_voiceService.memory.isEmpty || _voiceService.memory.length <= 2) {
+          _voiceService.clearMemory();
+          _introduceIfEmpty();
+        } else {
+          setState(() {
+            _currentStatusText = langCode.startsWith("hi")
+                ? "भाषा बदलकर हिन्दी कर दी गई है"
+                : "Language switched to English";
+          });
+        }
       },
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        decoration: BoxDecoration(
+          color: isSelected ? AppColors.greenMain : Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: AppColors.ink, width: 1.5),
+          boxShadow: isSelected
+              ? null
+              : const [
+                  BoxShadow(
+                    color: AppColors.ink,
+                    blurRadius: 0,
+                    offset: Offset(2, 2),
+                  )
+                ],
+        ),
+        child: Text(
+          label,
+          style: GoogleFonts.inter(
+            fontSize: 12,
+            fontWeight: FontWeight.w800,
+            color: AppColors.ink,
+          ),
+        ),
+      ),
     );
   }
 
@@ -367,24 +445,24 @@ class _AiAssistantScreenState extends State<AiAssistantScreen>
             margin: const EdgeInsets.only(right: 16),
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
             decoration: BoxDecoration(
-              color: AppColors.primaryLight,
+              color: AppColors.greenLight,
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: AppColors.primary.withOpacity(0.2)),
+              border: Border.all(color: AppColors.ink, width: 1),
             ),
             child: Row(
               children: [
                 const Icon(
                   Icons.wifi_off_rounded,
                   size: 11,
-                  color: AppColors.primary,
+                  color: AppColors.greenDarker,
                 ),
                 const SizedBox(width: 4),
                 Text(
-                  'Offline Mode',
+                  _voiceService.currentLanguageCode.startsWith("hi") ? 'ऑफलाइन मोड' : 'Offline Mode',
                   style: GoogleFonts.inter(
                     fontSize: 10,
-                    fontWeight: FontWeight.w700,
-                    color: AppColors.primary,
+                    fontWeight: FontWeight.w900,
+                    color: AppColors.greenDarker,
                   ),
                 ),
               ],
@@ -397,6 +475,9 @@ class _AiAssistantScreenState extends State<AiAssistantScreen>
           children: [
             // Active SOS status header banner (if active alert exists)
             if (activeAlert != null) _buildActiveSosStatusCard(activeAlert),
+
+            // Language Selector Bar
+            _buildLanguageSelector(),
 
             // Chat area
             Expanded(
@@ -449,7 +530,9 @@ class _AiAssistantScreenState extends State<AiAssistantScreen>
                   ),
                   const SizedBox(width: 4),
                   Text(
-                    'Running Locally · No Internet Required',
+                    _voiceService.currentLanguageCode.startsWith("hi")
+                        ? 'स्थानीय रूप से सक्रिय · इंटरनेट की आवश्यकता नहीं'
+                        : 'Running Locally · No Internet Required',
                     style: GoogleFonts.inter(
                       fontSize: 11,
                       fontWeight: FontWeight.w600,
@@ -467,24 +550,29 @@ class _AiAssistantScreenState extends State<AiAssistantScreen>
 
   // Custom Active SOS status card
   Widget _buildActiveSosStatusCard(AlertModel alert) {
-    Color statusColor = AppColors.primary;
+    Color statusBg = AppColors.white;
+    Color statusAccent = AppColors.ink;
     double progress = 0.25;
 
     switch (alert.status.toLowerCase()) {
       case 'stored offline':
-        statusColor = AppColors.primary;
+        statusBg = AppColors.redLight;
+        statusAccent = AppColors.redMain;
         progress = 0.25;
         break;
       case 'relay in progress':
-        statusColor = const Color(0xFF8B5CF6);
+        statusBg = const Color(0xFFF3E8FF);
+        statusAccent = const Color(0xFF8B5CF6);
         progress = 0.6;
         break;
       case 'connectivity found':
-        statusColor = AppColors.warning;
+        statusBg = AppColors.redLight;
+        statusAccent = AppColors.redMain;
         progress = 0.8;
         break;
       case 'delivered':
-        statusColor = AppColors.success;
+        statusBg = AppColors.greenLight;
+        statusAccent = AppColors.greenText;
         progress = 1.0;
         break;
     }
@@ -494,9 +582,9 @@ class _AiAssistantScreenState extends State<AiAssistantScreen>
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: statusColor.withOpacity(0.06),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: statusColor.withOpacity(0.2)),
+        color: statusBg,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: AppColors.ink, width: 1.5),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -510,8 +598,8 @@ class _AiAssistantScreenState extends State<AiAssistantScreen>
                     width: 8,
                     height: 8,
                     decoration: BoxDecoration(
-                      color: statusColor.withOpacity(
-                        alert.status.toLowerCase() == 'delivered' ? 1.0 : 0.4 + _micGlowController.value * 0.6,
+                      color: statusAccent.withValues(
+                        alpha: alert.status.toLowerCase() == 'delivered' ? 1.0 : 0.4 + _micGlowController.value * 0.6,
                       ),
                       shape: BoxShape.circle,
                     ),
@@ -523,8 +611,8 @@ class _AiAssistantScreenState extends State<AiAssistantScreen>
                 'Active SOS Status: ${alert.status}',
                 style: GoogleFonts.inter(
                   fontSize: 13,
-                  fontWeight: FontWeight.w700,
-                  color: statusColor,
+                  fontWeight: FontWeight.w900,
+                  color: AppColors.ink,
                 ),
               ),
               const Spacer(),
@@ -532,20 +620,28 @@ class _AiAssistantScreenState extends State<AiAssistantScreen>
                 'Relays: ${alert.relayCount}',
                 style: GoogleFonts.inter(
                   fontSize: 11,
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.muted,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.ink,
                 ),
               ),
             ],
           ),
           const SizedBox(height: 8),
-          ClipRRect(
-            borderRadius: BorderRadius.circular(4),
-            child: LinearProgressIndicator(
-              value: progress,
-              minHeight: 4,
-              backgroundColor: AppColors.hairlineSoft,
-              valueColor: AlwaysStoppedAnimation<Color>(statusColor),
+          Container(
+            height: 6,
+            decoration: BoxDecoration(
+              color: AppColors.canvas,
+              borderRadius: BorderRadius.circular(3),
+              border: Border.all(color: AppColors.ink, width: 1),
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(2),
+              child: LinearProgressIndicator(
+                value: progress,
+                backgroundColor: Colors.transparent,
+                valueColor: AlwaysStoppedAnimation<Color>(statusAccent),
+                minHeight: 6,
+              ),
             ),
           ),
           const SizedBox(height: 6),
@@ -557,8 +653,8 @@ class _AiAssistantScreenState extends State<AiAssistantScreen>
                   'ID: ${alert.id} · Loc: ${alert.location}',
                   style: GoogleFonts.inter(
                     fontSize: 10,
-                    fontWeight: FontWeight.w500,
-                    color: AppColors.muted,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.textMuted,
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
@@ -574,8 +670,8 @@ class _AiAssistantScreenState extends State<AiAssistantScreen>
                     'Dismiss SOS',
                     style: GoogleFonts.inter(
                       fontSize: 11,
-                      fontWeight: FontWeight.w700,
-                      color: AppColors.success,
+                      fontWeight: FontWeight.w900,
+                      color: AppColors.redMain,
                     ),
                   ),
                 ),
@@ -587,6 +683,7 @@ class _AiAssistantScreenState extends State<AiAssistantScreen>
   }
 
   Widget _buildEmptyState() {
+    final isHindi = _voiceService.currentLanguageCode.startsWith("hi");
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -595,21 +692,22 @@ class _AiAssistantScreenState extends State<AiAssistantScreen>
             width: 72,
             height: 72,
             decoration: BoxDecoration(
-              color: AppColors.primaryLight,
+              color: AppColors.greenMain,
               shape: BoxShape.circle,
+              border: Border.all(color: AppColors.ink, width: 1.5),
             ),
             child: const Icon(
               Icons.shield_rounded,
-              color: AppColors.primary,
+              color: AppColors.ink,
               size: 32,
             ),
           ),
           const SizedBox(height: 16),
           Text(
-            'Aria Safety Assistant',
+            isHindi ? 'आरिया सुरक्षा सहायक' : 'Aria Safety Assistant',
             style: GoogleFonts.inter(
               fontSize: 18,
-              fontWeight: FontWeight.w800,
+              fontWeight: FontWeight.w900,
               color: AppColors.ink,
             ),
           ),
@@ -617,10 +715,13 @@ class _AiAssistantScreenState extends State<AiAssistantScreen>
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 40),
             child: Text(
-              'Gemma 3n running locally to protect you when offline. Tap microphone to speak, or type your question below.',
+              isHindi
+                  ? 'जेम्मा ३एन आपके डिवाइस पर ऑफलाइन काम कर रहा है। बोलने के लिए माइक दबाएं, या नीचे प्रश्न टाइप करें।'
+                  : 'Gemma 3n running locally to protect you when offline. Tap microphone to speak, or type your question below.',
               style: GoogleFonts.inter(
                 fontSize: 13,
-                color: AppColors.muted,
+                fontWeight: FontWeight.w700,
+                color: AppColors.textMuted,
                 height: 1.4,
               ),
               textAlign: TextAlign.center,
@@ -641,12 +742,13 @@ class _AiAssistantScreenState extends State<AiAssistantScreen>
             Container(
               width: 28,
               height: 28,
-              decoration: const BoxDecoration(
-                color: AppColors.primaryLight,
+              decoration: BoxDecoration(
+                color: AppColors.greenMain,
                 shape: BoxShape.circle,
+                border: Border.all(color: AppColors.ink, width: 1),
               ),
               child: const Center(
-                child: Icon(Icons.shield_rounded, color: AppColors.primary, size: 14),
+                child: Icon(Icons.shield_rounded, color: AppColors.ink, size: 14),
               ),
             ),
             const SizedBox(width: 8),
@@ -655,21 +757,21 @@ class _AiAssistantScreenState extends State<AiAssistantScreen>
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               decoration: BoxDecoration(
-                color: isUser ? Colors.white : AppColors.primaryLight,
+                color: isUser ? Colors.white : AppColors.greenLight,
                 borderRadius: BorderRadius.only(
                   topLeft: const Radius.circular(16),
                   topRight: const Radius.circular(16),
                   bottomLeft: isUser ? const Radius.circular(16) : Radius.zero,
                   bottomRight: isUser ? Radius.zero : const Radius.circular(16),
                 ),
-                border: isUser ? Border.all(color: AppColors.hairline) : null,
+                border: Border.all(color: AppColors.ink, width: 1.5),
               ),
               child: Text(
                 text,
                 style: GoogleFonts.inter(
                   fontSize: 14,
-                  fontWeight: isUser ? FontWeight.w500 : FontWeight.w600,
-                  color: isUser ? AppColors.ink : AppColors.primaryDark,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.ink,
                   height: 1.4,
                 ),
               ),
@@ -681,11 +783,12 @@ class _AiAssistantScreenState extends State<AiAssistantScreen>
               width: 28,
               height: 28,
               decoration: BoxDecoration(
-                color: AppColors.hairlineSoft,
+                color: AppColors.canvas,
                 shape: BoxShape.circle,
+                border: Border.all(color: AppColors.ink, width: 1),
               ),
               child: const Center(
-                child: Icon(Icons.person_rounded, color: AppColors.body, size: 14),
+                child: Icon(Icons.person_rounded, color: AppColors.ink, size: 14),
               ),
             ),
           ],
@@ -703,24 +806,26 @@ class _AiAssistantScreenState extends State<AiAssistantScreen>
           Container(
             width: 28,
             height: 28,
-            decoration: const BoxDecoration(
-              color: AppColors.primaryLight,
+            decoration: BoxDecoration(
+              color: AppColors.greenMain,
               shape: BoxShape.circle,
+              border: Border.all(color: AppColors.ink, width: 1),
             ),
             child: const Center(
-              child: Icon(Icons.shield_rounded, color: AppColors.primary, size: 14),
+              child: Icon(Icons.shield_rounded, color: AppColors.ink, size: 14),
             ),
           ),
           const SizedBox(width: 8),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            decoration: const BoxDecoration(
-              color: AppColors.primaryLight,
-              borderRadius: BorderRadius.only(
+            decoration: BoxDecoration(
+              color: AppColors.greenLight,
+              borderRadius: const BorderRadius.only(
                 topLeft: Radius.circular(16),
                 topRight: Radius.circular(16),
                 bottomRight: Radius.circular(16),
               ),
+              border: Border.all(color: AppColors.ink, width: 1.5),
             ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
@@ -730,7 +835,7 @@ class _AiAssistantScreenState extends State<AiAssistantScreen>
                   width: 6,
                   height: 6,
                   decoration: const BoxDecoration(
-                    color: AppColors.primary,
+                    color: AppColors.greenDarker,
                     shape: BoxShape.circle,
                   ),
                 );
@@ -773,9 +878,9 @@ class _AiAssistantScreenState extends State<AiAssistantScreen>
             child: Container(
               height: 48,
               decoration: BoxDecoration(
-                color: AppColors.surfaceSoft,
+                color: AppColors.white,
                 borderRadius: BorderRadius.circular(24),
-                border: Border.all(color: AppColors.hairline),
+                border: Border.all(color: AppColors.ink, width: 1.5),
               ),
               child: Row(
                 children: [
@@ -789,10 +894,10 @@ class _AiAssistantScreenState extends State<AiAssistantScreen>
                           _handleInput(val);
                         }
                       },
-                      style: GoogleFonts.inter(fontSize: 14, color: AppColors.ink),
-                      decoration: const InputDecoration(
-                        hintText: "Type a question...",
-                        hintStyle: TextStyle(color: AppColors.mutedSoft),
+                      style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w700, color: AppColors.ink),
+                      decoration: InputDecoration(
+                        hintText: _voiceService.currentLanguageCode.startsWith("hi") ? "कुछ पूछें..." : "Type a question...",
+                        hintStyle: const TextStyle(color: AppColors.textLight, fontWeight: FontWeight.w700),
                         border: InputBorder.none,
                         enabledBorder: InputBorder.none,
                         focusedBorder: InputBorder.none,
@@ -802,7 +907,7 @@ class _AiAssistantScreenState extends State<AiAssistantScreen>
                     ),
                   ),
                   IconButton(
-                    icon: const Icon(Icons.send_rounded, color: AppColors.primary, size: 18),
+                    icon: const Icon(Icons.send_rounded, color: AppColors.ink, size: 18),
                     onPressed: () {
                       final val = _textController.text;
                       if (val.trim().isNotEmpty) {
@@ -817,7 +922,7 @@ class _AiAssistantScreenState extends State<AiAssistantScreen>
           ),
           const SizedBox(width: 12),
 
-          // Microhpone voice trigger button
+          // Microphone voice trigger button
           GestureDetector(
             onTap: _toggleListening,
             child: AnimatedBuilder(
@@ -827,21 +932,23 @@ class _AiAssistantScreenState extends State<AiAssistantScreen>
                   width: 54,
                   height: 54,
                   decoration: BoxDecoration(
-                    color: _isListening ? AppColors.error : AppColors.primary,
+                    color: _isListening ? AppColors.redMain : AppColors.greenMain,
                     shape: BoxShape.circle,
+                    border: Border.all(color: AppColors.ink, width: 1.5),
                     boxShadow: [
                       BoxShadow(
-                        color: (_isListening ? AppColors.error : AppColors.primary).withOpacity(
-                          0.2 + _micGlowController.value * 0.3,
+                        color: AppColors.ink,
+                        blurRadius: 0,
+                        offset: Offset(
+                          2.0 + _micGlowController.value * 2.0,
+                          2.0 + _micGlowController.value * 2.0,
                         ),
-                        blurRadius: 10 + _micGlowController.value * 10,
-                        spreadRadius: 2 + _micGlowController.value * 4,
                       ),
                     ],
                   ),
                   child: Icon(
                     _isListening ? Icons.stop_rounded : Icons.mic_rounded,
-                    color: Colors.white,
+                    color: AppColors.ink,
                     size: 26,
                   ),
                 );
@@ -869,25 +976,24 @@ class WaveformPainter extends CustomPainter {
       ..strokeWidth = 3;
 
     final double midY = size.height / 2;
-    final int barCount = 19;
+    const int barCount = 19;
     final double spacing = size.width / (barCount - 1);
 
     for (int i = 0; i < barCount; i++) {
       double amplitude = 3;
-      double frequencyMultiplier = 1.0;
 
       if (waveState == 1) {
         // Listening - chaotic high amplitude waves
         amplitude = 12 + sin((animationValue * 2 * pi) + (i * 0.7)) * 12;
-        paint.color = AppColors.error.withOpacity(0.8);
+        paint.color = AppColors.redMain;
       } else if (waveState == 2) {
         // Speaking - smooth flowing sine wave
         amplitude = 6 + sin((animationValue * 2 * pi) + (i * 0.4)) * 14;
-        paint.color = AppColors.primary.withOpacity(0.8);
+        paint.color = AppColors.greenText;
       } else {
         // Idle - flat line with tiny movement
         amplitude = 2 + sin((animationValue * 2 * pi) + (i * 0.2)) * 1.5;
-        paint.color = AppColors.mutedSoft.withOpacity(0.5);
+        paint.color = AppColors.textLight.withValues(alpha: 0.5);
       }
 
       // Mirror the bars around center

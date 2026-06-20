@@ -23,39 +23,39 @@ class AboutScreen extends StatelessWidget {
                 width: double.infinity,
                 padding: const EdgeInsets.all(24),
                 decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [
-                      AppColors.primary.withOpacity(0.06),
-                      const Color(0xFF8B5CF6).withOpacity(0.06),
-                    ],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                  borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: AppColors.primary.withOpacity(0.15)),
+                  color: AppColors.white,
+                  borderRadius: BorderRadius.circular(18),
+                  border: Border.all(color: AppColors.ink, width: 1.5),
+                  boxShadow: const [
+                    BoxShadow(
+                      color: AppColors.ink,
+                      blurRadius: 0,
+                      offset: Offset(3, 3),
+                    ),
+                  ],
                 ),
                 child: Column(
                   children: [
                     Container(
-                      width: 60,
-                      height: 60,
+                      width: 54,
+                      height: 54,
                       decoration: BoxDecoration(
-                        gradient: const LinearGradient(
-                          colors: [AppColors.primary, Color(0xFF8B5CF6)],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                        ),
-                        borderRadius: BorderRadius.circular(16),
+                        color: AppColors.greenMain,
+                        shape: BoxShape.circle,
+                        border: Border.all(color: AppColors.ink, width: 1.5),
                       ),
-                      child: const Icon(Icons.hub_rounded,
-                          color: Colors.white, size: 30),
+                      child: const Icon(
+                        Icons.hub_rounded,
+                        color: AppColors.ink,
+                        size: 26,
+                      ),
                     ),
                     const SizedBox(height: 16),
                     Text(
                       'SheShield Mesh Network',
                       style: GoogleFonts.inter(
                         fontSize: 20,
-                        fontWeight: FontWeight.w800,
+                        fontWeight: FontWeight.w900,
                         color: AppColors.ink,
                         letterSpacing: -0.3,
                       ),
@@ -65,9 +65,10 @@ class AboutScreen extends StatelessWidget {
                     Text(
                       'When internet and cellular networks are unavailable, SheShield Mesh stores emergency alerts locally and relays them through nearby devices until connectivity is restored.',
                       style: GoogleFonts.inter(
-                        fontSize: 14,
-                        color: AppColors.body,
-                        height: 1.6,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w500,
+                        color: AppColors.textMuted,
+                        height: 1.5,
                       ),
                       textAlign: TextAlign.center,
                     ),
@@ -82,8 +83,8 @@ class AboutScreen extends StatelessWidget {
                 'How It Works',
                 style: GoogleFonts.inter(
                   fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.muted,
+                  fontWeight: FontWeight.w900,
+                  color: AppColors.ink,
                   letterSpacing: 0.5,
                 ),
               ),
@@ -99,8 +100,8 @@ class AboutScreen extends StatelessWidget {
                 'Key Features',
                 style: GoogleFonts.inter(
                   fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.muted,
+                  fontWeight: FontWeight.w900,
+                  color: AppColors.ink,
                   letterSpacing: 0.5,
                 ),
               ),
@@ -112,13 +113,13 @@ class AboutScreen extends StatelessWidget {
                 physics: const NeverScrollableScrollPhysics(),
                 crossAxisSpacing: 12,
                 mainAxisSpacing: 12,
-                childAspectRatio: 1.3,
+                childAspectRatio: 1.1,
                 children: [
                   _featureCard(
                     Icons.offline_bolt_rounded,
                     'Offline First',
                     'Stores alerts locally without internet',
-                    AppColors.primary,
+                    AppColors.redMain,
                   ),
                   _featureCard(
                     Icons.bluetooth_rounded,
@@ -130,13 +131,25 @@ class AboutScreen extends StatelessWidget {
                     Icons.lock_rounded,
                     'Encrypted',
                     'AES-256 end-to-end encryption',
-                    const Color(0xFF10B981),
+                    AppColors.greenText,
                   ),
                   _featureCard(
                     Icons.people_rounded,
                     'Multi-Hop',
                     'Alert hops across device network',
                     const Color(0xFF8B5CF6),
+                  ),
+                  _featureCard(
+                    Icons.track_changes_rounded,
+                    'Safe Beacon Mode',
+                    'Create a proactive safety session before entering risky environments.',
+                    const Color(0xFFF59E0B),
+                  ),
+                  _featureCard(
+                    Icons.groups_rounded,
+                    'Community Rescue',
+                    'Nearby users can help relay alerts through a decentralized safety network.',
+                    const Color(0xFFEC4899),
                   ),
                 ],
               ),
@@ -148,8 +161,8 @@ class AboutScreen extends StatelessWidget {
                 'Technical Details',
                 style: GoogleFonts.inter(
                   fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.muted,
+                  fontWeight: FontWeight.w900,
+                  color: AppColors.ink,
                   letterSpacing: 0.5,
                 ),
               ),
@@ -158,22 +171,29 @@ class AboutScreen extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
-                  color: AppColors.surfaceCard,
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: AppColors.hairline),
+                  color: AppColors.white,
+                  borderRadius: BorderRadius.circular(18),
+                  border: Border.all(color: AppColors.ink, width: 1.5),
+                  boxShadow: const [
+                    BoxShadow(
+                      color: AppColors.ink,
+                      blurRadius: 0,
+                      offset: Offset(3, 3),
+                    ),
+                  ],
                 ),
                 child: Column(
                   children: [
                     _specRow('Protocol', 'Bluetooth Low Energy (BLE 5.0)'),
-                    const Divider(height: 20, color: AppColors.hairlineSoft),
+                    const Divider(height: 20, thickness: 1.2, color: AppColors.ink),
                     _specRow('Encryption', 'AES-256 + RSA-2048'),
-                    const Divider(height: 20, color: AppColors.hairlineSoft),
+                    const Divider(height: 20, thickness: 1.2, color: AppColors.ink),
                     _specRow('Max Relay Hops', '32 devices'),
-                    const Divider(height: 20, color: AppColors.hairlineSoft),
+                    const Divider(height: 20, thickness: 1.2, color: AppColors.ink),
                     _specRow('Alert Packet Size', '~2.4 KB'),
-                    const Divider(height: 20, color: AppColors.hairlineSoft),
+                    const Divider(height: 20, thickness: 1.2, color: AppColors.ink),
                     _specRow('Range per Hop', '~100 meters'),
-                    const Divider(height: 20, color: AppColors.hairlineSoft),
+                    const Divider(height: 20, thickness: 1.2, color: AppColors.ink),
                     _specRow('Storage', 'Local encrypted SQLite'),
                   ],
                 ),
@@ -186,7 +206,15 @@ class AboutScreen extends StatelessWidget {
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
                   color: AppColors.ink,
-                  borderRadius: BorderRadius.circular(16),
+                  borderRadius: BorderRadius.circular(18),
+                  border: Border.all(color: AppColors.ink, width: 1.5),
+                  boxShadow: const [
+                    BoxShadow(
+                      color: AppColors.greenMain,
+                      blurRadius: 0,
+                      offset: Offset(3, 3),
+                    ),
+                  ],
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -195,8 +223,8 @@ class AboutScreen extends StatelessWidget {
                       '🛡️ Our Mission',
                       style: GoogleFonts.inter(
                         fontSize: 15,
-                        fontWeight: FontWeight.w700,
-                        color: Colors.white,
+                        fontWeight: FontWeight.w900,
+                        color: AppColors.greenMain,
                       ),
                     ),
                     const SizedBox(height: 10),
@@ -204,8 +232,9 @@ class AboutScreen extends StatelessWidget {
                       'No woman should be silenced by a network shutdown. SheShield Mesh ensures that your SOS always reaches help — no matter what.',
                       style: GoogleFonts.inter(
                         fontSize: 13,
-                        color: const Color(0xFFD1D5DB),
-                        height: 1.6,
+                        fontWeight: FontWeight.w500,
+                        color: AppColors.white,
+                        height: 1.5,
                       ),
                     ),
                   ],
@@ -224,14 +253,14 @@ class AboutScreen extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: AppColors.canvas,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.hairline),
-        boxShadow: [
+        color: AppColors.white,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: AppColors.ink, width: 1.5),
+        boxShadow: const [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
+            color: AppColors.ink,
+            blurRadius: 0,
+            offset: Offset(3, 3),
           ),
         ],
       ),
@@ -241,32 +270,32 @@ class AboutScreen extends StatelessWidget {
             Icons.phone_android_rounded,
             'Phone A (Victim)',
             'No internet · SOS stored locally',
-            AppColors.error,
-            true,
+            AppColors.redMain,
+            AppColors.redLight,
           ),
-          _diagramConnector(AppColors.primary),
+          _diagramConnector(AppColors.ink),
           _diagramStep(
             Icons.devices_other_rounded,
             'Phone B (Nearby)',
             'Receives alert via Bluetooth relay',
-            AppColors.primary,
-            true,
+            AppColors.greenText,
+            AppColors.greenLight,
           ),
-          _diagramConnector(AppColors.success),
+          _diagramConnector(AppColors.ink),
           _diagramStep(
             Icons.wifi_rounded,
             'Internet Restored',
             'Phone B uploads to emergency servers',
             const Color(0xFF3B82F6),
-            true,
+            const Color(0xFFE3F2FD),
           ),
-          _diagramConnector(AppColors.success),
+          _diagramConnector(AppColors.ink),
           _diagramStep(
             Icons.local_hospital_rounded,
             'Emergency Responder',
             'Alert received · Contacts notified',
-            AppColors.success,
-            true,
+            AppColors.greenDarker,
+            AppColors.greenMain,
           ),
         ],
       ),
@@ -278,7 +307,7 @@ class AboutScreen extends StatelessWidget {
     String title,
     String subtitle,
     Color color,
-    bool isActive,
+    Color bg,
   ) {
     return Row(
       children: [
@@ -286,9 +315,9 @@ class AboutScreen extends StatelessWidget {
           width: 44,
           height: 44,
           decoration: BoxDecoration(
-            color: color.withOpacity(0.1),
+            color: bg,
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: color.withOpacity(0.3)),
+            border: Border.all(color: AppColors.ink, width: 1.2),
           ),
           child: Icon(icon, size: 22, color: color),
         ),
@@ -301,7 +330,7 @@ class AboutScreen extends StatelessWidget {
                 title,
                 style: GoogleFonts.inter(
                   fontSize: 14,
-                  fontWeight: FontWeight.w700,
+                  fontWeight: FontWeight.w900,
                   color: AppColors.ink,
                 ),
               ),
@@ -309,7 +338,8 @@ class AboutScreen extends StatelessWidget {
                 subtitle,
                 style: GoogleFonts.inter(
                   fontSize: 12,
-                  color: AppColors.muted,
+                  fontWeight: FontWeight.w500,
+                  color: AppColors.textMuted,
                 ),
               ),
             ],
@@ -329,13 +359,13 @@ class AboutScreen extends StatelessWidget {
               Container(
                 width: 2,
                 height: 8,
-                color: color.withOpacity(0.3),
+                color: AppColors.ink,
               ),
-              Icon(Icons.arrow_downward_rounded, size: 14, color: color),
+              const Icon(Icons.arrow_downward_rounded, size: 14, color: AppColors.ink),
               Container(
                 width: 2,
                 height: 8,
-                color: color.withOpacity(0.3),
+                color: AppColors.ink,
               ),
             ],
           ),
@@ -349,9 +379,16 @@ class AboutScreen extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.canvas,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppColors.hairline),
+        color: AppColors.white,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: AppColors.ink, width: 1.5),
+        boxShadow: const [
+          BoxShadow(
+            color: AppColors.ink,
+            blurRadius: 0,
+            offset: Offset(3, 3),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -360,8 +397,9 @@ class AboutScreen extends StatelessWidget {
             width: 36,
             height: 36,
             decoration: BoxDecoration(
-              color: color.withOpacity(0.1),
+              color: color.withValues(alpha: 0.12),
               borderRadius: BorderRadius.circular(10),
+              border: Border.all(color: AppColors.ink, width: 1.2),
             ),
             child: Icon(icon, size: 18, color: color),
           ),
@@ -370,7 +408,7 @@ class AboutScreen extends StatelessWidget {
             title,
             style: GoogleFonts.inter(
               fontSize: 13,
-              fontWeight: FontWeight.w700,
+              fontWeight: FontWeight.w900,
               color: AppColors.ink,
             ),
           ),
@@ -380,7 +418,9 @@ class AboutScreen extends StatelessWidget {
               subtitle,
               style: GoogleFonts.inter(
                 fontSize: 11,
-                color: AppColors.muted,
+                color: AppColors.textMuted,
+                fontWeight: FontWeight.w500,
+                height: 1.3,
               ),
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
@@ -399,14 +439,15 @@ class AboutScreen extends StatelessWidget {
           label,
           style: GoogleFonts.inter(
             fontSize: 13,
-            color: AppColors.muted,
+            fontWeight: FontWeight.w700,
+            color: AppColors.textMuted,
           ),
         ),
         Text(
           value,
           style: GoogleFonts.inter(
             fontSize: 13,
-            fontWeight: FontWeight.w600,
+            fontWeight: FontWeight.w900,
             color: AppColors.ink,
           ),
         ),

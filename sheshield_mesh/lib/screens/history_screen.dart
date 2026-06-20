@@ -31,45 +31,38 @@ class HistoryScreen extends StatelessWidget {
                     margin: const EdgeInsets.fromLTRB(20, 16, 20, 0),
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [
-                          AppColors.primary.withOpacity(0.08),
-                          AppColors.success.withOpacity(0.08),
-                        ],
-                        begin: Alignment.centerLeft,
-                        end: Alignment.centerRight,
-                      ),
-                      borderRadius: BorderRadius.circular(14),
-                      border: Border.all(color: AppColors.hairline),
+                      color: AppColors.greenLight,
+                      borderRadius: BorderRadius.circular(18),
+                      border: Border.all(color: AppColors.ink, width: 1.5),
                     ),
                     child: Row(
                       children: [
                         _summaryItem(
                           '${provider.history.length}',
                           'Total Alerts',
-                          AppColors.primary,
+                          AppColors.ink,
                         ),
                         Container(
-                          width: 1,
+                          width: 1.5,
                           height: 32,
-                          color: AppColors.hairline,
+                          color: AppColors.ink,
                           margin: const EdgeInsets.symmetric(horizontal: 16),
                         ),
                         _summaryItem(
                           '${provider.history.where((a) => a.status == 'Delivered').length}',
                           'Delivered',
-                          AppColors.success,
+                          AppColors.greenDarker,
                         ),
                         Container(
-                          width: 1,
+                          width: 1.5,
                           height: 32,
-                          color: AppColors.hairline,
+                          color: AppColors.ink,
                           margin: const EdgeInsets.symmetric(horizontal: 16),
                         ),
                         _summaryItem(
                           '${provider.history.fold(0, (sum, a) => sum + a.relayCount)}',
                           'Total Relays',
-                          const Color(0xFF8B5CF6),
+                          AppColors.ink,
                         ),
                       ],
                     ),
@@ -122,7 +115,7 @@ class HistoryScreen extends StatelessWidget {
             value,
             style: GoogleFonts.inter(
               fontSize: 20,
-              fontWeight: FontWeight.w800,
+              fontWeight: FontWeight.w900,
               color: color,
             ),
           ),
@@ -130,8 +123,8 @@ class HistoryScreen extends StatelessWidget {
             label,
             style: GoogleFonts.inter(
               fontSize: 11,
-              fontWeight: FontWeight.w500,
-              color: AppColors.muted,
+              fontWeight: FontWeight.w700,
+              color: AppColors.textMuted,
             ),
           ),
         ],
@@ -144,19 +137,14 @@ class HistoryScreen extends StatelessWidget {
     DateFormat dateFormatter,
     DateFormat timeFormatter,
   ) {
+    final bool isDelivered = alert.status == 'Delivered';
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.canvas,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.hairline),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.03),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
+        color: AppColors.white,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: AppColors.ink, width: 1.5),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -167,13 +155,14 @@ class HistoryScreen extends StatelessWidget {
                 width: 36,
                 height: 36,
                 decoration: BoxDecoration(
-                  color: AppColors.successLight,
+                  color: AppColors.redLight,
                   borderRadius: BorderRadius.circular(10),
+                  border: Border.all(color: AppColors.ink, width: 1),
                 ),
                 child: const Icon(
                   Icons.shield_rounded,
                   size: 18,
-                  color: AppColors.success,
+                  color: AppColors.redMain,
                 ),
               ),
               const SizedBox(width: 12),
@@ -185,15 +174,16 @@ class HistoryScreen extends StatelessWidget {
                       alert.id,
                       style: GoogleFonts.jetBrainsMono(
                         fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                        color: AppColors.primary,
+                        fontWeight: FontWeight.w900,
+                        color: AppColors.ink,
                       ),
                     ),
                     Text(
                       '${dateFormatter.format(alert.timestamp)} · ${timeFormatter.format(alert.timestamp)}',
                       style: GoogleFonts.inter(
                         fontSize: 11,
-                        color: AppColors.muted,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.textLight,
                       ),
                     ),
                   ],
@@ -202,33 +192,30 @@ class HistoryScreen extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(
-                  color: alert.status == 'Delivered'
-                      ? AppColors.successLight
-                      : AppColors.warningLight,
+                  color: isDelivered ? AppColors.greenLight : AppColors.redLight,
                   borderRadius: BorderRadius.circular(10),
+                  border: Border.all(color: AppColors.ink, width: 1),
                 ),
                 child: Text(
                   alert.status,
                   style: GoogleFonts.inter(
                     fontSize: 11,
-                    fontWeight: FontWeight.w600,
-                    color: alert.status == 'Delivered'
-                        ? AppColors.success
-                        : AppColors.warning,
+                    fontWeight: FontWeight.w900,
+                    color: isDelivered ? AppColors.greenDarker : AppColors.redDark,
                   ),
                 ),
               ),
             ],
           ),
           const SizedBox(height: 14),
-          const Divider(color: AppColors.hairlineSoft, height: 1),
+          const Divider(color: Color(0x1F000000), height: 1),
           const SizedBox(height: 12),
           Row(
             children: [
               _metaChip(
                 Icons.hub_rounded,
                 '${alert.relayCount} relay${alert.relayCount != 1 ? 's' : ''}',
-                AppColors.primary,
+                const Color(0xFF8B5CF6),
               ),
               const SizedBox(width: 8),
               _metaChip(
@@ -236,7 +223,7 @@ class HistoryScreen extends StatelessWidget {
                 alert.location.length > 22
                     ? '${alert.location.substring(0, 22)}...'
                     : alert.location,
-                AppColors.success,
+                AppColors.greenText,
               ),
             ],
           ),
@@ -249,8 +236,9 @@ class HistoryScreen extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.08),
+        color: AppColors.canvas,
         borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: AppColors.ink, width: 1),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -261,8 +249,8 @@ class HistoryScreen extends StatelessWidget {
             label,
             style: GoogleFonts.inter(
               fontSize: 11,
-              fontWeight: FontWeight.w600,
-              color: color,
+              fontWeight: FontWeight.w900,
+              color: AppColors.ink,
             ),
           ),
         ],
@@ -279,13 +267,14 @@ class HistoryScreen extends StatelessWidget {
             width: 72,
             height: 72,
             decoration: BoxDecoration(
-              color: AppColors.surfaceCard,
+              color: AppColors.white,
               borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: AppColors.ink, width: 1.5),
             ),
             child: const Icon(
               Icons.history_rounded,
               size: 36,
-              color: AppColors.muted,
+              color: AppColors.ink,
             ),
           ),
           const SizedBox(height: 16),
@@ -293,14 +282,18 @@ class HistoryScreen extends StatelessWidget {
             'No Alerts Yet',
             style: GoogleFonts.inter(
               fontSize: 16,
-              fontWeight: FontWeight.w700,
+              fontWeight: FontWeight.w900,
               color: AppColors.ink,
             ),
           ),
           const SizedBox(height: 8),
           Text(
             'Emergency alert history will appear here',
-            style: GoogleFonts.inter(fontSize: 13, color: AppColors.muted),
+            style: GoogleFonts.inter(
+              fontSize: 13,
+              fontWeight: FontWeight.w700,
+              color: AppColors.textMuted,
+            ),
           ),
         ],
       ),

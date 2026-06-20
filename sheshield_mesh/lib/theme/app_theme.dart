@@ -2,180 +2,72 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class AppColors {
-  // Primary Brand
+  // Neo-Brutalism Colors
+  static const Color canvas = Color(0xFFE8EBE6);
+  static const Color white = Color(0xFFFFFFFF);
+  static const Color ink = Color(0xFF0E0F0C); // Borders, Headings
+  
+  static const Color textMuted = Color(0xFF454745);
+  static const Color textLight = Color(0xFF868685);
+  
+  static const Color redLight = Color(0xFFFBE4E4);
+  static const Color redMedium = Color(0xFFF4BABA);
+  static const Color redMain = Color(0xFFD03238);
+  static const Color redDark = Color(0xFFA72027);
+
+  static const Color greenLight = Color(0xFFE2F6D5);
+  static const Color greenMedium = Color(0xFFC5EDAB);
+  static const Color greenMain = Color(0xFF9FE870);
+  static const Color greenText = Color(0xFF2EAD4B);
+  static const Color greenDark = Color(0xFF163300);
+  static const Color greenDarker = Color(0xFF054D28);
+
+  // Legacy variables to keep old screens compiling
   static const Color primary = Color(0xFF6C63FF);
-  static const Color primaryDark = Color(0xFF5A52D5);
-  static const Color primaryLight = Color(0xFFEEEDFF);
-  static const Color primaryGlow = Color(0x336C63FF);
-
-  // Semantic
-  static const Color error = Color(0xFFEF4444);
-  static const Color errorLight = Color(0xFFFFEEEE);
-  static const Color success = Color(0xFF10B981);
-  static const Color successLight = Color(0xFFECFDF5);
-  static const Color warning = Color(0xFFF59E0B);
-  static const Color warningLight = Color(0xFFFFFBEB);
-
-  // Neutrals
-  static const Color ink = Color(0xFF111111);
-  static const Color body = Color(0xFF374151);
-  static const Color muted = Color(0xFF6B7280);
-  static const Color mutedSoft = Color(0xFF9CA3AF);
+  static const Color primarySoft = Color(0xFF9F99FF);
+  static const Color primaryLight = Color(0xFFEBEAFF);
+  static const Color primaryDark = Color(0xFF4A41DB);
+  static const Color body = Color(0xFF454745);
+  static const Color muted = Color(0xFF868685);
+  static const Color mutedSoft = Color(0xFFE5E7EB);
   static const Color hairline = Color(0xFFE5E7EB);
   static const Color hairlineSoft = Color(0xFFF3F4F6);
-  static const Color canvas = Color(0xFFFFFFFF);
-  static const Color surfaceSoft = Color(0xFFF8F9FA);
-  static const Color surfaceCard = Color(0xFFF5F5F5);
-
-  // Mesh specific
-  static const Color meshNodeA = Color(0xFF6C63FF);
-  static const Color meshNodeB = Color(0xFF10B981);
-  static const Color meshLine = Color(0xFFD1D5DB);
-  static const Color offlineRed = Color(0xFFEF4444);
-  static const Color onlineGreen = Color(0xFF10B981);
+  static const Color surfaceCard = Color(0xFFFFFFFF);
+  static const Color surfaceSoft = Color(0xFFF9FAFB);
+  static const Color success = Color(0xFF10B981);
+  static const Color successLight = Color(0xFFD1FAE5);
+  static const Color error = Color(0xFFEF4444);
+  static const Color errorLight = Color(0xFFFEE2E2);
+  static const Color warning = Color(0xFFF59E0B);
+  static const Color warningLight = Color(0xFFFEF3C7);
 }
 
 class AppTheme {
   static ThemeData get theme {
     return ThemeData(
       useMaterial3: true,
-      colorScheme: ColorScheme.fromSeed(
-        seedColor: AppColors.primary,
-        brightness: Brightness.light,
-        primary: AppColors.primary,
-        onPrimary: Colors.white,
-        surface: AppColors.canvas,
-        onSurface: AppColors.ink,
-      ),
       scaffoldBackgroundColor: AppColors.canvas,
-      textTheme: GoogleFonts.interTextTheme().copyWith(
-        displayLarge: GoogleFonts.inter(
-          fontSize: 36,
-          fontWeight: FontWeight.w700,
-          letterSpacing: -1.0,
-          color: AppColors.ink,
-        ),
-        displayMedium: GoogleFonts.inter(
-          fontSize: 28,
-          fontWeight: FontWeight.w700,
-          letterSpacing: -0.5,
-          color: AppColors.ink,
-        ),
-        displaySmall: GoogleFonts.inter(
-          fontSize: 22,
-          fontWeight: FontWeight.w700,
-          letterSpacing: -0.3,
-          color: AppColors.ink,
-        ),
-        headlineMedium: GoogleFonts.inter(
-          fontSize: 18,
-          fontWeight: FontWeight.w600,
-          color: AppColors.ink,
-        ),
-        headlineSmall: GoogleFonts.inter(
-          fontSize: 16,
-          fontWeight: FontWeight.w600,
-          color: AppColors.ink,
-        ),
-        titleLarge: GoogleFonts.inter(
-          fontSize: 16,
-          fontWeight: FontWeight.w600,
-          color: AppColors.ink,
-        ),
-        titleMedium: GoogleFonts.inter(
-          fontSize: 14,
-          fontWeight: FontWeight.w600,
-          color: AppColors.ink,
-        ),
-        bodyLarge: GoogleFonts.inter(
-          fontSize: 16,
-          fontWeight: FontWeight.w400,
-          color: AppColors.body,
-        ),
-        bodyMedium: GoogleFonts.inter(
-          fontSize: 14,
-          fontWeight: FontWeight.w400,
-          color: AppColors.body,
-        ),
-        bodySmall: GoogleFonts.inter(
-          fontSize: 13,
-          fontWeight: FontWeight.w400,
-          color: AppColors.muted,
-        ),
-        labelLarge: GoogleFonts.inter(
-          fontSize: 14,
-          fontWeight: FontWeight.w600,
-          letterSpacing: 0,
-          color: AppColors.ink,
-        ),
+      colorScheme: ColorScheme.fromSeed(
+        seedColor: AppColors.ink,
+        primary: AppColors.ink,
+        surface: AppColors.white,
+        background: AppColors.canvas,
+        error: AppColors.redMain,
+      ),
+      textTheme: GoogleFonts.interTextTheme().apply(
+        bodyColor: AppColors.textMuted,
+        displayColor: AppColors.ink,
       ),
       appBarTheme: AppBarTheme(
         backgroundColor: AppColors.canvas,
-        foregroundColor: AppColors.ink,
         elevation: 0,
-        scrolledUnderElevation: 1,
-        surfaceTintColor: Colors.transparent,
-        shadowColor: AppColors.hairline,
+        scrolledUnderElevation: 0,
+        iconTheme: const IconThemeData(color: AppColors.ink),
         titleTextStyle: GoogleFonts.inter(
-          fontSize: 17,
-          fontWeight: FontWeight.w600,
           color: AppColors.ink,
+          fontSize: 18,
+          fontWeight: FontWeight.w700,
         ),
-      ),
-      cardTheme: CardThemeData(
-        color: AppColors.canvas,
-        elevation: 0,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-          side: const BorderSide(color: AppColors.hairline, width: 1),
-        ),
-        margin: EdgeInsets.zero,
-      ),
-      elevatedButtonTheme: ElevatedButtonThemeData(
-        style: ElevatedButton.styleFrom(
-          backgroundColor: AppColors.primary,
-          foregroundColor: Colors.white,
-          elevation: 0,
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-          textStyle: GoogleFonts.inter(
-            fontSize: 15,
-            fontWeight: FontWeight.w600,
-            letterSpacing: 0,
-          ),
-          minimumSize: const Size(double.infinity, 52),
-        ),
-      ),
-      outlinedButtonTheme: OutlinedButtonThemeData(
-        style: OutlinedButton.styleFrom(
-          foregroundColor: AppColors.primary,
-          side: const BorderSide(color: AppColors.primary, width: 1.5),
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-          textStyle: GoogleFonts.inter(
-            fontSize: 15,
-            fontWeight: FontWeight.w600,
-          ),
-          minimumSize: const Size(double.infinity, 52),
-        ),
-      ),
-      inputDecorationTheme: InputDecorationTheme(
-        filled: true,
-        fillColor: AppColors.surfaceSoft,
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: AppColors.hairline),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: AppColors.hairline),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: AppColors.primary, width: 1.5),
-        ),
-        hintStyle: GoogleFonts.inter(color: AppColors.mutedSoft, fontSize: 14),
       ),
     );
   }

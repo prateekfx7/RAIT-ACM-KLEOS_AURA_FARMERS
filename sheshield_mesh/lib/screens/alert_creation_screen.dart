@@ -102,12 +102,11 @@ class _AlertCreationScreenState extends State<AlertCreationScreen>
                 width: double.infinity,
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
-                  color: _step == 1 ? AppColors.successLight : AppColors.primaryLight,
-                  borderRadius: BorderRadius.circular(16),
+                  color: _step == 1 ? AppColors.greenLight : AppColors.redLight,
+                  borderRadius: BorderRadius.circular(18),
                   border: Border.all(
-                    color: _step == 1
-                        ? AppColors.success.withOpacity(0.3)
-                        : AppColors.primary.withOpacity(0.2),
+                    color: AppColors.ink,
+                    width: 1.5,
                   ),
                 ),
                 child: Row(
@@ -121,8 +120,8 @@ class _AlertCreationScreenState extends State<AlertCreationScreen>
                             height: 28,
                             child: CircularProgressIndicator(
                               strokeWidth: 2.5,
-                              valueColor: AlwaysStoppedAnimation<Color>(
-                                AppColors.primary,
+                              valueColor: const AlwaysStoppedAnimation<Color>(
+                                AppColors.ink,
                               ),
                               value: _shimmerController.value,
                             ),
@@ -139,10 +138,10 @@ class _AlertCreationScreenState extends State<AlertCreationScreen>
                           width: 28,
                           height: 28,
                           decoration: const BoxDecoration(
-                            color: AppColors.success,
+                            color: AppColors.greenMain,
                             shape: BoxShape.circle,
                           ),
-                          child: const Icon(Icons.check, color: Colors.white, size: 16),
+                          child: const Icon(Icons.check, color: AppColors.ink, size: 16),
                         ),
                       ),
                     const SizedBox(width: 14),
@@ -154,8 +153,8 @@ class _AlertCreationScreenState extends State<AlertCreationScreen>
                             _step == 0 ? 'Generating Alert...' : 'Alert Created',
                             style: GoogleFonts.inter(
                               fontSize: 15,
-                              fontWeight: FontWeight.w700,
-                              color: _step == 1 ? AppColors.success : AppColors.primary,
+                              fontWeight: FontWeight.w900,
+                              color: AppColors.ink,
                             ),
                           ),
                           Text(
@@ -164,7 +163,8 @@ class _AlertCreationScreenState extends State<AlertCreationScreen>
                                 : 'Stored offline, ready for relay',
                             style: GoogleFonts.inter(
                               fontSize: 12,
-                              color: AppColors.muted,
+                              fontWeight: FontWeight.w700,
+                              color: _step == 1 ? AppColors.greenDarker : AppColors.redDark,
                             ),
                           ),
                         ],
@@ -181,16 +181,9 @@ class _AlertCreationScreenState extends State<AlertCreationScreen>
                 width: double.infinity,
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
-                  color: AppColors.canvas,
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: AppColors.hairline),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.04),
-                      blurRadius: 12,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
+                  color: AppColors.white,
+                  borderRadius: BorderRadius.circular(18),
+                  border: Border.all(color: AppColors.ink, width: 1.5),
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -199,8 +192,8 @@ class _AlertCreationScreenState extends State<AlertCreationScreen>
                       'Alert Details',
                       style: GoogleFonts.inter(
                         fontSize: 13,
-                        fontWeight: FontWeight.w600,
-                        color: AppColors.muted,
+                        fontWeight: FontWeight.w900,
+                        color: AppColors.ink,
                         letterSpacing: 0.5,
                       ),
                     ),
@@ -209,35 +202,35 @@ class _AlertCreationScreenState extends State<AlertCreationScreen>
                       Icons.fingerprint_rounded,
                       'Alert ID',
                       alert?.id ?? 'Generating...',
-                      AppColors.primary,
+                      AppColors.ink,
                     ),
-                    const Divider(height: 24, color: AppColors.hairlineSoft),
+                    const Divider(height: 24, color: Color(0x1F000000)),
                     _detailRow(
                       Icons.access_time_rounded,
                       'Timestamp',
                       formatter.format(now),
-                      AppColors.body,
+                      AppColors.textMuted,
                     ),
-                    const Divider(height: 24, color: AppColors.hairlineSoft),
+                    const Divider(height: 24, color: Color(0x1F000000)),
                     _detailRow(
                       Icons.location_on_rounded,
                       'Live Location',
                       alert?.location ?? provider.liveLocation,
-                      const Color(0xFF10B981),
+                      AppColors.greenText,
                     ),
-                    const Divider(height: 24, color: AppColors.hairlineSoft),
+                    const Divider(height: 24, color: Color(0x1F000000)),
                     _detailRow(
                       Icons.offline_bolt_rounded,
                       'Network Status',
                       'No Internet — Offline Mode',
-                      AppColors.error,
+                      AppColors.redMain,
                     ),
-                    const Divider(height: 24, color: AppColors.hairlineSoft),
+                    const Divider(height: 24, color: Color(0x1F000000)),
                     _detailRow(
                       Icons.save_rounded,
                       'Storage',
                       'Stored Locally',
-                      AppColors.warning,
+                      AppColors.greenDark,
                     ),
                   ],
                 ),
@@ -250,9 +243,9 @@ class _AlertCreationScreenState extends State<AlertCreationScreen>
                 width: double.infinity,
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
-                  color: AppColors.surfaceCard,
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: AppColors.hairline),
+                  color: AppColors.white,
+                  borderRadius: BorderRadius.circular(18),
+                  border: Border.all(color: AppColors.ink, width: 1.5),
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -261,8 +254,8 @@ class _AlertCreationScreenState extends State<AlertCreationScreen>
                       'Activity Log',
                       style: GoogleFonts.inter(
                         fontSize: 13,
-                        fontWeight: FontWeight.w600,
-                        color: AppColors.muted,
+                        fontWeight: FontWeight.w900,
+                        color: AppColors.ink,
                         letterSpacing: 0.5,
                       ),
                     ),
@@ -277,13 +270,14 @@ class _AlertCreationScreenState extends State<AlertCreationScreen>
                               width: 18,
                               height: 18,
                               margin: const EdgeInsets.only(top: 1),
-                              decoration: const BoxDecoration(
-                                color: AppColors.success,
+                              decoration: BoxDecoration(
+                                color: AppColors.greenMain,
                                 shape: BoxShape.circle,
+                                border: Border.all(color: AppColors.ink, width: 1),
                               ),
                               child: const Icon(
                                 Icons.check,
-                                color: Colors.white,
+                                color: AppColors.ink,
                                 size: 10,
                               ),
                             ),
@@ -293,7 +287,8 @@ class _AlertCreationScreenState extends State<AlertCreationScreen>
                                 entry.value,
                                 style: GoogleFonts.jetBrainsMono(
                                   fontSize: 12,
-                                  color: AppColors.body,
+                                  fontWeight: FontWeight.w600,
+                                  color: AppColors.textMuted,
                                 ),
                               ),
                             ),
@@ -307,18 +302,19 @@ class _AlertCreationScreenState extends State<AlertCreationScreen>
                           Container(
                             width: 18,
                             height: 18,
-                            decoration: const BoxDecoration(
-                              color: AppColors.primaryLight,
+                            decoration: BoxDecoration(
+                              color: AppColors.redLight,
                               shape: BoxShape.circle,
+                              border: Border.all(color: AppColors.ink, width: 1),
                             ),
                             child: const Center(
                               child: SizedBox(
-                                width: 10,
-                                height: 10,
+                                width: 8,
+                                height: 8,
                                 child: CircularProgressIndicator(
                                   strokeWidth: 1.5,
                                   valueColor: AlwaysStoppedAnimation<Color>(
-                                    AppColors.primary,
+                                    AppColors.ink,
                                   ),
                                 ),
                               ),
@@ -329,7 +325,8 @@ class _AlertCreationScreenState extends State<AlertCreationScreen>
                             'Processing...',
                             style: GoogleFonts.jetBrainsMono(
                               fontSize: 12,
-                              color: AppColors.muted,
+                              fontWeight: FontWeight.w600,
+                              color: AppColors.redDark,
                             ),
                           ),
                         ],
@@ -353,8 +350,9 @@ class _AlertCreationScreenState extends State<AlertCreationScreen>
           width: 32,
           height: 32,
           decoration: BoxDecoration(
-            color: iconColor.withOpacity(0.1),
+            color: iconColor.withValues(alpha: 0.12),
             borderRadius: BorderRadius.circular(8),
+            border: Border.all(color: AppColors.ink, width: 1),
           ),
           child: Icon(icon, size: 16, color: iconColor),
         ),
@@ -367,8 +365,8 @@ class _AlertCreationScreenState extends State<AlertCreationScreen>
                 label,
                 style: GoogleFonts.inter(
                   fontSize: 11,
-                  fontWeight: FontWeight.w500,
-                  color: AppColors.muted,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.textLight,
                 ),
               ),
               const SizedBox(height: 2),
@@ -376,7 +374,7 @@ class _AlertCreationScreenState extends State<AlertCreationScreen>
                 value,
                 style: GoogleFonts.inter(
                   fontSize: 13,
-                  fontWeight: FontWeight.w600,
+                  fontWeight: FontWeight.w900,
                   color: AppColors.ink,
                 ),
               ),

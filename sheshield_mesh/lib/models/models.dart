@@ -39,6 +39,32 @@ class AlertModel {
     );
   }
 
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'timestamp': timestamp.toIso8601String(),
+      'location': location,
+      'status': status,
+      'relayCount': relayCount,
+      'nearbyDeviceId': nearbyDeviceId,
+      'deliveredAt': deliveredAt?.toIso8601String(),
+    };
+  }
+
+  factory AlertModel.fromJson(Map<String, dynamic> json) {
+    return AlertModel(
+      id: json['id'] as String,
+      timestamp: DateTime.parse(json['timestamp'] as String),
+      location: json['location'] as String,
+      status: json['status'] as String,
+      relayCount: json['relayCount'] as int? ?? 0,
+      nearbyDeviceId: json['nearbyDeviceId'] as String?,
+      deliveredAt: json['deliveredAt'] != null
+          ? DateTime.parse(json['deliveredAt'] as String)
+          : null,
+    );
+  }
+
   static AlertModel generate({String? location}) {
     const uuid = Uuid();
     final id = 'SOS-${uuid.v4().substring(0, 8).toUpperCase()}';
@@ -85,6 +111,28 @@ class ContactModel {
       relation: relation ?? this.relation,
       initials: initials ?? this.initials,
       colorIndex: colorIndex ?? this.colorIndex,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'name': name,
+      'phone': phone,
+      'relation': relation,
+      'initials': initials,
+      'colorIndex': colorIndex,
+    };
+  }
+
+  factory ContactModel.fromJson(Map<String, dynamic> json) {
+    return ContactModel(
+      id: json['id'] as String,
+      name: json['name'] as String,
+      phone: json['phone'] as String,
+      relation: json['relation'] as String,
+      initials: json['initials'] as String,
+      colorIndex: json['colorIndex'] as int,
     );
   }
 }

@@ -65,6 +65,12 @@ class _ConnectivityRestoredScreenState extends State<ConnectivityRestoredScreen>
     _wifiController.stop();
     _successController.forward();
     context.read<AppProvider>().setOnline(true);
+
+    // Auto-navigate to Alert Delivered screen after upload is complete
+    await Future.delayed(const Duration(milliseconds: 1500));
+    if (!mounted) return;
+    context.read<AppProvider>().deliverAlert();
+    Navigator.of(context).pushReplacementNamed('/alert-delivered');
   }
 
   @override
@@ -94,9 +100,12 @@ class _ConnectivityRestoredScreenState extends State<ConnectivityRestoredScreen>
                 width: double.infinity,
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
-                  color: AppColors.successLight,
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: AppColors.success.withOpacity(0.3)),
+                  color: AppColors.greenLight,
+                  borderRadius: BorderRadius.circular(18),
+                  border: Border.all(
+                    color: AppColors.ink,
+                    width: 1.5,
+                  ),
                 ),
                 child: Row(
                   children: [
@@ -107,15 +116,18 @@ class _ConnectivityRestoredScreenState extends State<ConnectivityRestoredScreen>
                           width: 44,
                           height: 44,
                           decoration: BoxDecoration(
-                            color: AppColors.success.withOpacity(
-                                _uploadComplete ? 1.0 : 0.6 + _wifiController.value * 0.4),
+                            color: AppColors.greenMain,
                             shape: BoxShape.circle,
+                            border: Border.all(
+                              color: AppColors.ink,
+                              width: 1.5,
+                            ),
                           ),
                           child: Icon(
                             _uploadComplete
                                 ? Icons.cloud_done_rounded
                                 : Icons.wifi_rounded,
-                            color: Colors.white,
+                            color: AppColors.ink,
                             size: 22,
                           ),
                         );
@@ -130,8 +142,8 @@ class _ConnectivityRestoredScreenState extends State<ConnectivityRestoredScreen>
                             'Internet Available',
                             style: GoogleFonts.inter(
                               fontSize: 16,
-                              fontWeight: FontWeight.w700,
-                              color: AppColors.success,
+                              fontWeight: FontWeight.w900,
+                              color: AppColors.ink,
                             ),
                           ),
                           Text(
@@ -140,7 +152,8 @@ class _ConnectivityRestoredScreenState extends State<ConnectivityRestoredScreen>
                                 : 'Uploading emergency alert...',
                             style: GoogleFonts.inter(
                               fontSize: 12,
-                              color: AppColors.body,
+                              fontWeight: FontWeight.w700,
+                              color: AppColors.greenDarker,
                             ),
                           ),
                         ],
@@ -157,16 +170,9 @@ class _ConnectivityRestoredScreenState extends State<ConnectivityRestoredScreen>
                 width: double.infinity,
                 padding: const EdgeInsets.all(24),
                 decoration: BoxDecoration(
-                  color: AppColors.canvas,
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: AppColors.hairline),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.04),
-                      blurRadius: 12,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
+                  color: AppColors.white,
+                  borderRadius: BorderRadius.circular(18),
+                  border: Border.all(color: AppColors.ink, width: 1.5),
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
@@ -175,7 +181,7 @@ class _ConnectivityRestoredScreenState extends State<ConnectivityRestoredScreen>
                       _uploadComplete ? 'Upload Complete' : 'Uploading Emergency Alert',
                       style: GoogleFonts.inter(
                         fontSize: 15,
-                        fontWeight: FontWeight.w700,
+                        fontWeight: FontWeight.w900,
                         color: AppColors.ink,
                       ),
                     ),
@@ -194,11 +200,11 @@ class _ConnectivityRestoredScreenState extends State<ConnectivityRestoredScreen>
                               return CircularProgressIndicator(
                                 value: _uploadProgress,
                                 strokeWidth: 8,
-                                backgroundColor: AppColors.hairlineSoft,
+                                backgroundColor: AppColors.canvas,
                                 valueColor: AlwaysStoppedAnimation<Color>(
                                   _uploadComplete
-                                      ? AppColors.success
-                                      : AppColors.primary,
+                                      ? AppColors.greenMain
+                                      : AppColors.redMain,
                                 ),
                                 strokeCap: StrokeCap.round,
                               );
@@ -216,7 +222,7 @@ class _ConnectivityRestoredScreenState extends State<ConnectivityRestoredScreen>
                                 ),
                                 child: const Icon(
                                   Icons.check_rounded,
-                                  color: AppColors.success,
+                                  color: AppColors.greenDarker,
                                   size: 36,
                                 ),
                               )
@@ -225,8 +231,8 @@ class _ConnectivityRestoredScreenState extends State<ConnectivityRestoredScreen>
                                 '$_displayPercent%',
                                 style: GoogleFonts.inter(
                                   fontSize: 26,
-                                  fontWeight: FontWeight.w800,
-                                  color: AppColors.primary,
+                                  fontWeight: FontWeight.w900,
+                                  color: AppColors.redMain,
                                 ),
                               ),
                           ],
@@ -248,13 +254,17 @@ class _ConnectivityRestoredScreenState extends State<ConnectivityRestoredScreen>
                               width: 24,
                               height: 24,
                               decoration: BoxDecoration(
-                                color: isDone ? AppColors.success : AppColors.hairline,
+                                color: isDone ? AppColors.greenMain : AppColors.white,
                                 shape: BoxShape.circle,
+                                border: Border.all(
+                                  color: AppColors.ink,
+                                  width: 1.5,
+                                ),
                               ),
                               child: Icon(
                                 Icons.check,
                                 size: 12,
-                                color: isDone ? Colors.white : AppColors.mutedSoft,
+                                color: isDone ? AppColors.ink : AppColors.textLight,
                               ),
                             ),
                             const SizedBox(height: 4),
@@ -262,8 +272,8 @@ class _ConnectivityRestoredScreenState extends State<ConnectivityRestoredScreen>
                               '$m%',
                               style: GoogleFonts.inter(
                                 fontSize: 11,
-                                fontWeight: FontWeight.w600,
-                                color: isDone ? AppColors.success : AppColors.mutedSoft,
+                                fontWeight: FontWeight.w900,
+                                color: isDone ? AppColors.greenDarker : AppColors.textLight,
                               ),
                             ),
                           ],
@@ -282,15 +292,16 @@ class _ConnectivityRestoredScreenState extends State<ConnectivityRestoredScreen>
                               padding: const EdgeInsets.symmetric(
                                   horizontal: 20, vertical: 10),
                               decoration: BoxDecoration(
-                                color: AppColors.successLight,
+                                color: AppColors.greenLight,
                                 borderRadius: BorderRadius.circular(12),
+                                border: Border.all(color: AppColors.ink, width: 1),
                               ),
                               child: Text(
                                 '✓  Alert Synced Successfully',
                                 style: GoogleFonts.inter(
                                   fontSize: 14,
-                                  fontWeight: FontWeight.w700,
-                                  color: AppColors.success,
+                                  fontWeight: FontWeight.w900,
+                                  color: AppColors.greenDarker,
                                 ),
                               ),
                             )
@@ -299,7 +310,8 @@ class _ConnectivityRestoredScreenState extends State<ConnectivityRestoredScreen>
                               'Uploading encrypted alert packet...',
                               style: GoogleFonts.inter(
                                 fontSize: 13,
-                                color: AppColors.muted,
+                                fontWeight: FontWeight.w700,
+                                color: AppColors.textMuted,
                               ),
                             ),
                     ),
@@ -314,27 +326,39 @@ class _ConnectivityRestoredScreenState extends State<ConnectivityRestoredScreen>
 
               const SizedBox(height: 28),
 
-              // Notify contacts button
+              // Automated progression indicator
               AnimatedOpacity(
                 opacity: _uploadComplete ? 1.0 : 0.0,
                 duration: const Duration(milliseconds: 500),
-                child: ElevatedButton.icon(
-                  onPressed: _uploadComplete
-                      ? () {
-                          context.read<AppProvider>().deliverAlert();
-                          Navigator.of(context)
-                              .pushReplacementNamed('/alert-delivered');
-                        }
-                      : null,
-                  icon: const Icon(Icons.notifications_rounded, size: 18),
-                  label: const Text('Notify Contacts'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primary,
-                    foregroundColor: Colors.white,
-                    minimumSize: const Size(double.infinity, 52),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(14),
-                    ),
+                child: Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  decoration: BoxDecoration(
+                    color: AppColors.greenLight,
+                    borderRadius: BorderRadius.circular(18),
+                    border: Border.all(color: AppColors.ink, width: 1.5),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const SizedBox(
+                        width: 16,
+                        height: 16,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          valueColor: AlwaysStoppedAnimation<Color>(AppColors.ink),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Text(
+                        'Notifying contacts automatically...',
+                        style: GoogleFonts.inter(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w900,
+                          color: AppColors.ink,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ),
@@ -350,9 +374,9 @@ class _ConnectivityRestoredScreenState extends State<ConnectivityRestoredScreen>
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: AppColors.surfaceCard,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.hairline),
+        color: AppColors.white,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: AppColors.ink, width: 1.5),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -361,8 +385,8 @@ class _ConnectivityRestoredScreenState extends State<ConnectivityRestoredScreen>
             'Signal Path',
             style: GoogleFonts.inter(
               fontSize: 13,
-              fontWeight: FontWeight.w600,
-              color: AppColors.muted,
+              fontWeight: FontWeight.w900,
+              color: AppColors.ink,
               letterSpacing: 0.5,
             ),
           ),
@@ -371,7 +395,7 @@ class _ConnectivityRestoredScreenState extends State<ConnectivityRestoredScreen>
             Icons.phone_android_rounded,
             'Your Device',
             'Alert originated here',
-            AppColors.primary,
+            AppColors.redMain,
             true,
           ),
           _pathConnector(true),
@@ -387,7 +411,7 @@ class _ConnectivityRestoredScreenState extends State<ConnectivityRestoredScreen>
             Icons.cloud_rounded,
             'Emergency Servers',
             'Uploading to responder network',
-            const Color(0xFF3B82F6),
+            AppColors.ink,
             _displayPercent >= 75,
           ),
           _pathConnector(_displayPercent >= 75),
@@ -395,7 +419,7 @@ class _ConnectivityRestoredScreenState extends State<ConnectivityRestoredScreen>
             Icons.local_hospital_rounded,
             'Emergency Responder',
             _uploadComplete ? 'Alert received & processed' : 'Awaiting upload...',
-            AppColors.success,
+            AppColors.greenText,
             _uploadComplete,
           ),
         ],
@@ -411,10 +435,17 @@ class _ConnectivityRestoredScreenState extends State<ConnectivityRestoredScreen>
           width: 36,
           height: 36,
           decoration: BoxDecoration(
-            color: isActive ? color : AppColors.hairline,
+            color: isActive ? color : AppColors.canvas,
             borderRadius: BorderRadius.circular(10),
+            border: Border.all(color: AppColors.ink, width: 1.5),
           ),
-          child: Icon(icon, color: isActive ? Colors.white : AppColors.mutedSoft, size: 18),
+          child: Icon(
+            icon,
+            color: isActive
+                ? (color == AppColors.ink ? Colors.white : AppColors.ink)
+                : AppColors.textLight,
+            size: 18,
+          ),
         ),
         const SizedBox(width: 14),
         Column(
@@ -424,15 +455,16 @@ class _ConnectivityRestoredScreenState extends State<ConnectivityRestoredScreen>
               title,
               style: GoogleFonts.inter(
                 fontSize: 13,
-                fontWeight: FontWeight.w600,
-                color: isActive ? AppColors.ink : AppColors.muted,
+                fontWeight: FontWeight.w900,
+                color: isActive ? AppColors.ink : AppColors.textLight,
               ),
             ),
             Text(
               subtitle,
               style: GoogleFonts.inter(
                 fontSize: 11,
-                color: isActive ? AppColors.body : AppColors.mutedSoft,
+                fontWeight: FontWeight.w700,
+                color: isActive ? AppColors.textMuted : AppColors.textLight,
               ),
             ),
           ],
@@ -448,7 +480,7 @@ class _ConnectivityRestoredScreenState extends State<ConnectivityRestoredScreen>
         duration: const Duration(milliseconds: 400),
         width: 2,
         height: 20,
-        color: isActive ? AppColors.primary.withOpacity(0.3) : AppColors.hairline,
+        color: isActive ? AppColors.ink : AppColors.textLight.withValues(alpha: 0.3),
       ),
     );
   }

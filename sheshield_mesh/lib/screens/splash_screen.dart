@@ -129,20 +129,17 @@ class _SplashScreenState extends State<SplashScreen>
                       width: 100,
                       height: 100,
                       decoration: BoxDecoration(
-                        gradient: const LinearGradient(
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                          colors: [
-                            AppColors.primary,
-                            Color(0xFF9C95FF),
-                          ],
-                        ),
+                        color: AppColors.redMain,
                         borderRadius: BorderRadius.circular(28),
-                        boxShadow: [
+                        border: Border.all(
+                          color: AppColors.ink,
+                          width: 2.5,
+                        ),
+                        boxShadow: const [
                           BoxShadow(
-                            color: AppColors.primary.withOpacity(0.35),
-                            blurRadius: 32,
-                            offset: const Offset(0, 12),
+                            color: AppColors.ink,
+                            blurRadius: 0,
+                            offset: Offset(4, 4),
                           ),
                         ],
                       ),
@@ -158,7 +155,7 @@ class _SplashScreenState extends State<SplashScreen>
                     'SheShield',
                     style: GoogleFonts.inter(
                       fontSize: 36,
-                      fontWeight: FontWeight.w800,
+                      fontWeight: FontWeight.w900,
                       color: AppColors.ink,
                       letterSpacing: -1.5,
                     ),
@@ -167,15 +164,19 @@ class _SplashScreenState extends State<SplashScreen>
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 5),
                     decoration: BoxDecoration(
-                      color: AppColors.primaryLight,
+                      color: AppColors.greenLight,
                       borderRadius: BorderRadius.circular(20),
+                      border: Border.all(
+                        color: AppColors.ink,
+                        width: 1.5,
+                      ),
                     ),
                     child: Text(
                       'MESH',
                       style: GoogleFonts.inter(
                         fontSize: 13,
-                        fontWeight: FontWeight.w700,
-                        color: AppColors.primary,
+                        fontWeight: FontWeight.w900,
+                        color: AppColors.greenDark,
                         letterSpacing: 3,
                       ),
                     ),
@@ -191,8 +192,8 @@ class _SplashScreenState extends State<SplashScreen>
                 'Safety Beyond Connectivity',
                 style: GoogleFonts.inter(
                   fontSize: 16,
-                  fontWeight: FontWeight.w500,
-                  color: AppColors.muted,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.ink,
                   letterSpacing: 0.2,
                 ),
               ),
@@ -208,15 +209,26 @@ class _SplashScreenState extends State<SplashScreen>
                     AnimatedBuilder(
                       animation: _progressValue,
                       builder: (context, _) {
-                        return ClipRRect(
-                          borderRadius: BorderRadius.circular(4),
-                          child: LinearProgressIndicator(
-                            value: _progressValue.value,
-                            backgroundColor: AppColors.hairlineSoft,
-                            valueColor: const AlwaysStoppedAnimation<Color>(
-                              AppColors.primary,
+                        return Container(
+                          height: 10,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(5),
+                            border: Border.all(
+                              color: AppColors.ink,
+                              width: 1.5,
                             ),
-                            minHeight: 3,
+                          ),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(3),
+                            child: LinearProgressIndicator(
+                              value: _progressValue.value,
+                              backgroundColor: Colors.transparent,
+                              valueColor: const AlwaysStoppedAnimation<Color>(
+                                AppColors.ink,
+                              ),
+                              minHeight: 10,
+                            ),
                           ),
                         );
                       },
@@ -226,8 +238,8 @@ class _SplashScreenState extends State<SplashScreen>
                       'Initializing mesh network...',
                       style: GoogleFonts.inter(
                         fontSize: 12,
-                        fontWeight: FontWeight.w500,
-                        color: AppColors.mutedSoft,
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.textMuted,
                       ),
                     ),
                   ],

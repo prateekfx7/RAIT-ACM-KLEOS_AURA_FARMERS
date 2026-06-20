@@ -25,7 +25,7 @@ class _SOSButtonState extends State<SOSButton> with TickerProviderStateMixin {
     _pulseController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 1800),
-    )..repeat(reverse: true);
+    );
 
     _pressController = AnimationController(
       vsync: this,
@@ -72,11 +72,11 @@ class _SOSButtonState extends State<SOSButton> with TickerProviderStateMixin {
                 return Transform.scale(
                   scale: _pressScale.value,
                   child: Container(
-                    width: 130 + i * 30 + value * 20,
-                    height: 130 + i * 30 + value * 20,
+                    width: 140 + i * 30 + value * 20,
+                    height: 140 + i * 30 + value * 20,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: AppColors.error
+                      color: AppColors.redMain
                           .withOpacity((0.12 - i * 0.03) * (1 - value * 0.5)),
                     ),
                   ),
@@ -92,48 +92,37 @@ class _SOSButtonState extends State<SOSButton> with TickerProviderStateMixin {
         );
       },
       child: Container(
-        width: 130,
-        height: 130,
+        width: 140,
+        height: 140,
         decoration: BoxDecoration(
-          gradient: const RadialGradient(
-            colors: [
-              Color(0xFFFF4444),
-              AppColors.error,
-            ],
-            center: Alignment(-0.3, -0.3),
-          ),
+          color: AppColors.redMain,
           shape: BoxShape.circle,
           boxShadow: [
             BoxShadow(
-              color: AppColors.error.withOpacity(0.5),
+              color: AppColors.redMain.withOpacity(0.45),
               blurRadius: 24,
               offset: const Offset(0, 8),
-              spreadRadius: 2,
-            ),
-            BoxShadow(
-              color: AppColors.error.withOpacity(0.2),
-              blurRadius: 40,
-              offset: const Offset(0, 16),
-              spreadRadius: 8,
             ),
           ],
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(
-              Icons.sos_rounded,
-              color: Colors.white,
-              size: 42,
-            ),
-            const SizedBox(height: 4),
             Text(
-              'PRESS & HOLD',
+              'SOS',
               style: GoogleFonts.inter(
-                fontSize: 9,
-                fontWeight: FontWeight.w700,
-                color: Colors.white.withOpacity(0.85),
-                letterSpacing: 1.2,
+                fontSize: 20,
+                fontWeight: FontWeight.w900,
+                color: Colors.white,
+              ),
+            ),
+            const SizedBox(height: 2),
+            Text(
+              'Single Tap',
+              style: GoogleFonts.inter(
+                fontSize: 11,
+                fontWeight: FontWeight.w600,
+                color: Colors.white,
               ),
             ),
           ],

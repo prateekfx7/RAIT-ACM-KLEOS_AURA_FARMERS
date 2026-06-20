@@ -33,10 +33,10 @@ class _MeshRelayScreenState extends State<MeshRelayScreen>
     Icons.wifi_find_rounded,
   ];
   final List<Color> _stepColors = [
-    AppColors.primary,
+    AppColors.redMain,
     const Color(0xFF8B5CF6),
-    AppColors.success,
-    AppColors.warning,
+    AppColors.greenText,
+    AppColors.greenDarker,
   ];
 
   bool _showContinue = false;
@@ -92,6 +92,10 @@ class _MeshRelayScreenState extends State<MeshRelayScreen>
       _currentStep = 3;
       _showContinue = true;
     });
+
+    await Future.delayed(const Duration(milliseconds: 1500));
+    if (!mounted) return;
+    Navigator.of(context).pushReplacementNamed('/connectivity-restored');
   }
 
   @override
@@ -121,16 +125,12 @@ class _MeshRelayScreenState extends State<MeshRelayScreen>
                 width: double.infinity,
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [
-                      AppColors.primary.withOpacity(0.08),
-                      const Color(0xFF8B5CF6).withOpacity(0.08),
-                    ],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
+                  color: _relayCount == 0 ? AppColors.redLight : AppColors.greenLight,
+                  borderRadius: BorderRadius.circular(18),
+                  border: Border.all(
+                    color: AppColors.ink,
+                    width: 1.5,
                   ),
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: AppColors.primary.withOpacity(0.15)),
                 ),
                 child: Row(
                   children: [
@@ -138,16 +138,20 @@ class _MeshRelayScreenState extends State<MeshRelayScreen>
                       width: 52,
                       height: 52,
                       decoration: BoxDecoration(
-                        color: AppColors.primary.withOpacity(0.1),
+                        color: _relayCount == 0 ? AppColors.redMain : AppColors.greenMain,
                         borderRadius: BorderRadius.circular(14),
+                        border: Border.all(
+                          color: AppColors.ink,
+                          width: 1.5,
+                        ),
                       ),
                       child: Center(
                         child: Text(
                           '$_relayCount',
                           style: GoogleFonts.inter(
                             fontSize: 24,
-                            fontWeight: FontWeight.w800,
-                            color: AppColors.primary,
+                            fontWeight: FontWeight.w900,
+                            color: _relayCount == 0 ? Colors.white : AppColors.ink,
                           ),
                         ),
                       ),
@@ -157,11 +161,11 @@ class _MeshRelayScreenState extends State<MeshRelayScreen>
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Relay Count',
+                          'Relay Hops',
                           style: GoogleFonts.inter(
                             fontSize: 13,
-                            fontWeight: FontWeight.w500,
-                            color: AppColors.muted,
+                            fontWeight: FontWeight.w700,
+                            color: _relayCount == 0 ? AppColors.redDark : AppColors.greenDarker,
                           ),
                         ),
                         Text(
@@ -170,7 +174,7 @@ class _MeshRelayScreenState extends State<MeshRelayScreen>
                               : 'Alert successfully relayed!',
                           style: GoogleFonts.inter(
                             fontSize: 15,
-                            fontWeight: FontWeight.w700,
+                            fontWeight: FontWeight.w900,
                             color: AppColors.ink,
                           ),
                         ),
@@ -187,9 +191,9 @@ class _MeshRelayScreenState extends State<MeshRelayScreen>
                 width: double.infinity,
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
-                  color: AppColors.surfaceCard,
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: AppColors.hairline),
+                  color: AppColors.white,
+                  borderRadius: BorderRadius.circular(18),
+                  border: Border.all(color: AppColors.ink, width: 1.5),
                 ),
                 child: Column(
                   children: [
@@ -197,8 +201,8 @@ class _MeshRelayScreenState extends State<MeshRelayScreen>
                       'Mesh Relay Simulation',
                       style: GoogleFonts.inter(
                         fontSize: 13,
-                        fontWeight: FontWeight.w600,
-                        color: AppColors.muted,
+                        fontWeight: FontWeight.w900,
+                        color: AppColors.ink,
                         letterSpacing: 0.5,
                       ),
                     ),
@@ -225,7 +229,7 @@ class _MeshRelayScreenState extends State<MeshRelayScreen>
                   Icons.devices_other_rounded,
                   'Nearby Device ID',
                   _nearbyDeviceId!,
-                  AppColors.primary,
+                  AppColors.ink,
                 ),
 
               if (_currentStep >= 1) ...[
@@ -244,7 +248,7 @@ class _MeshRelayScreenState extends State<MeshRelayScreen>
                   Icons.check_circle_rounded,
                   'Signal Status',
                   'Successfully Relayed via Bluetooth LE',
-                  AppColors.success,
+                  AppColors.greenText,
                 ),
               ],
 
@@ -254,13 +258,13 @@ class _MeshRelayScreenState extends State<MeshRelayScreen>
                   Icons.wifi_find_rounded,
                   'Connectivity',
                   'Monitoring for internet access...',
-                  AppColors.warning,
+                  AppColors.redMain,
                 ),
               ],
 
               const SizedBox(height: 28),
 
-              // Continue Button
+              // Automated progression indicator
               AnimatedOpacity(
                 opacity: _showContinue ? 1.0 : 0.0,
                 duration: const Duration(milliseconds: 400),
@@ -268,20 +272,35 @@ class _MeshRelayScreenState extends State<MeshRelayScreen>
                   offset: _showContinue ? Offset.zero : const Offset(0, 0.2),
                   duration: const Duration(milliseconds: 400),
                   curve: Curves.easeOut,
-                  child: ElevatedButton.icon(
-                    onPressed: _showContinue
-                        ? () => Navigator.of(context)
-                            .pushReplacementNamed('/connectivity-restored')
-                        : null,
-                    icon: const Icon(Icons.wifi_rounded, size: 18),
-                    label: const Text('Continue Simulation'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.primary,
-                      foregroundColor: Colors.white,
-                      minimumSize: const Size(double.infinity, 52),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(14),
-                      ),
+                  child: Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    decoration: BoxDecoration(
+                      color: AppColors.greenLight,
+                      borderRadius: BorderRadius.circular(18),
+                      border: Border.all(color: AppColors.ink, width: 1.5),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const SizedBox(
+                          width: 16,
+                          height: 16,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            valueColor: AlwaysStoppedAnimation<Color>(AppColors.ink),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Text(
+                          'Proceeding automatically...',
+                          style: GoogleFonts.inter(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w900,
+                            color: AppColors.ink,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ),
@@ -383,7 +402,7 @@ class _MeshRelayScreenState extends State<MeshRelayScreen>
                     width: 60 + (_pulseController.value * 20),
                     height: 60 + (_pulseController.value * 20),
                     decoration: BoxDecoration(
-                      color: color.withOpacity(0.1 * (1 - _pulseController.value)),
+                      color: color.withValues(alpha: 0.1 * (1 - _pulseController.value)),
                       shape: BoxShape.circle,
                     ),
                   ),
@@ -396,21 +415,16 @@ class _MeshRelayScreenState extends State<MeshRelayScreen>
             width: 52,
             height: 52,
             decoration: BoxDecoration(
-              color: isActive ? color : AppColors.hairlineSoft,
+              color: isActive ? color : AppColors.canvas,
               shape: BoxShape.circle,
-              boxShadow: isActive
-                  ? [
-                      BoxShadow(
-                        color: color.withOpacity(0.3),
-                        blurRadius: 12,
-                        offset: const Offset(0, 4),
-                      )
-                    ]
-                  : null,
+              border: Border.all(
+                color: AppColors.ink,
+                width: 1.5,
+              ),
             ),
             child: Icon(
               icon,
-              color: isActive ? Colors.white : AppColors.mutedSoft,
+              color: isActive ? Colors.white : AppColors.textLight,
               size: 22,
             ),
           ),
@@ -420,8 +434,8 @@ class _MeshRelayScreenState extends State<MeshRelayScreen>
           label,
           style: GoogleFonts.inter(
             fontSize: 10,
-            fontWeight: FontWeight.w600,
-            color: isActive ? color : AppColors.mutedSoft,
+            fontWeight: FontWeight.w900,
+            color: isActive ? AppColors.ink : AppColors.textLight,
           ),
           textAlign: TextAlign.center,
         ),
@@ -434,6 +448,18 @@ class _MeshRelayScreenState extends State<MeshRelayScreen>
     final isCurrent = _currentStep == index;
     final isUpcoming = _currentStep < index;
 
+    final Color itemColor = isCompleted
+        ? AppColors.greenMain
+        : isCurrent
+            ? _stepColors[index]
+            : AppColors.white;
+
+    final Color iconColor = isCompleted
+        ? AppColors.ink
+        : isCurrent
+            ? Colors.white
+            : AppColors.textLight;
+
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6),
       child: Row(
@@ -443,17 +469,17 @@ class _MeshRelayScreenState extends State<MeshRelayScreen>
             width: 28,
             height: 28,
             decoration: BoxDecoration(
-              color: isCompleted
-                  ? AppColors.success
-                  : isCurrent
-                      ? _stepColors[index]
-                      : AppColors.hairline,
+              color: itemColor,
               shape: BoxShape.circle,
+              border: Border.all(
+                color: AppColors.ink,
+                width: 1.5,
+              ),
             ),
             child: Icon(
               isCompleted ? Icons.check : _stepIcons[index],
               size: 14,
-              color: isUpcoming ? AppColors.mutedSoft : Colors.white,
+              color: iconColor,
             ),
           ),
           const SizedBox(width: 12),
@@ -462,8 +488,8 @@ class _MeshRelayScreenState extends State<MeshRelayScreen>
               _stepLabels[index],
               style: GoogleFonts.inter(
                 fontSize: 13,
-                fontWeight: isCurrent ? FontWeight.w700 : FontWeight.w500,
-                color: isUpcoming ? AppColors.mutedSoft : AppColors.ink,
+                fontWeight: isCurrent ? FontWeight.w900 : FontWeight.w700,
+                color: isUpcoming ? AppColors.textLight : AppColors.ink,
               ),
             ),
           ),
@@ -471,14 +497,15 @@ class _MeshRelayScreenState extends State<MeshRelayScreen>
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
               decoration: BoxDecoration(
-                color: _stepColors[index].withOpacity(0.1),
+                color: _stepColors[index].withValues(alpha: 0.12),
                 borderRadius: BorderRadius.circular(10),
+                border: Border.all(color: AppColors.ink, width: 1),
               ),
               child: Text(
                 'Active',
                 style: GoogleFonts.inter(
                   fontSize: 10,
-                  fontWeight: FontWeight.w600,
+                  fontWeight: FontWeight.w900,
                   color: _stepColors[index],
                 ),
               ),
@@ -487,15 +514,16 @@ class _MeshRelayScreenState extends State<MeshRelayScreen>
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
               decoration: BoxDecoration(
-                color: AppColors.successLight,
+                color: AppColors.greenLight,
                 borderRadius: BorderRadius.circular(10),
+                border: Border.all(color: AppColors.ink, width: 1),
               ),
               child: Text(
                 'Done',
                 style: GoogleFonts.inter(
                   fontSize: 10,
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.success,
+                  fontWeight: FontWeight.w900,
+                  color: AppColors.greenDarker,
                 ),
               ),
             ),
@@ -522,9 +550,9 @@ class _MeshRelayScreenState extends State<MeshRelayScreen>
         width: double.infinity,
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: AppColors.canvas,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: AppColors.hairline),
+          color: AppColors.white,
+          borderRadius: BorderRadius.circular(18),
+          border: Border.all(color: AppColors.ink, width: 1.5),
         ),
         child: Row(
           children: [
@@ -532,8 +560,9 @@ class _MeshRelayScreenState extends State<MeshRelayScreen>
               width: 32,
               height: 32,
               decoration: BoxDecoration(
-                color: color.withOpacity(0.1),
+                color: color.withValues(alpha: 0.12),
                 borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: AppColors.ink, width: 1),
               ),
               child: Icon(icon, size: 16, color: color),
             ),
@@ -546,15 +575,15 @@ class _MeshRelayScreenState extends State<MeshRelayScreen>
                     title,
                     style: GoogleFonts.inter(
                       fontSize: 11,
-                      fontWeight: FontWeight.w500,
-                      color: AppColors.muted,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.textLight,
                     ),
                   ),
                   Text(
                     value,
                     style: GoogleFonts.inter(
                       fontSize: 13,
-                      fontWeight: FontWeight.w600,
+                      fontWeight: FontWeight.w900,
                       color: AppColors.ink,
                     ),
                   ),

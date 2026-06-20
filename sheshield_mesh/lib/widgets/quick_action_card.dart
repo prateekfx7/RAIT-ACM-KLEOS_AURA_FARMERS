@@ -63,30 +63,31 @@ class _QuickActionCardState extends State<QuickActionCard>
       child: AnimatedBuilder(
         animation: _hoverController,
         builder: (context, child) {
-          return Transform.scale(
-            scale: 1.0 - _hoverController.value * 0.03,
+          final double translation = _hoverController.value * 3.0;
+          return Transform.translate(
+            offset: Offset(translation, translation),
             child: child,
           );
         },
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 150),
           width: widget.fullWidth ? double.infinity : null,
-          padding: EdgeInsets.all(widget.fullWidth ? 16 : 16),
+          padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: _isHovered
-                ? widget.color.withOpacity(0.04)
-                : AppColors.canvas,
-            borderRadius: BorderRadius.circular(16),
+            color: AppColors.white,
+            borderRadius: BorderRadius.circular(18),
             border: Border.all(
-              color: _isHovered
-                  ? widget.color.withOpacity(0.3)
-                  : AppColors.hairline,
+              color: AppColors.ink,
+              width: 1.5,
             ),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.03),
-                blurRadius: 8,
-                offset: const Offset(0, 2),
+                color: AppColors.ink,
+                blurRadius: 0,
+                offset: Offset(
+                  3.0 - (_hoverController.value * 3.0),
+                  3.0 - (_hoverController.value * 3.0),
+                ),
               ),
             ],
           ),
@@ -105,10 +106,10 @@ class _QuickActionCardState extends State<QuickActionCard>
                         ],
                       ),
                     ),
-                    Icon(
+                    const Icon(
                       Icons.arrow_forward_ios_rounded,
                       size: 14,
-                      color: AppColors.mutedSoft,
+                      color: AppColors.ink,
                     ),
                   ],
                 )
@@ -132,8 +133,12 @@ class _QuickActionCardState extends State<QuickActionCard>
       width: 40,
       height: 40,
       decoration: BoxDecoration(
-        color: widget.color.withOpacity(0.1),
+        color: widget.color.withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(11),
+        border: Border.all(
+          color: AppColors.ink,
+          width: 1,
+        ),
       ),
       child: Icon(widget.icon, color: widget.color, size: 20),
     );

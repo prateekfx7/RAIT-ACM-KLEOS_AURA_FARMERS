@@ -43,6 +43,17 @@ class _AlertDeliveredScreenState extends State<AlertDeliveredScreen>
     Future.delayed(const Duration(milliseconds: 700), () {
       if (mounted) _itemsController.forward();
     });
+
+    // Auto-return to home after showing the success screen
+    Future.delayed(const Duration(milliseconds: 4500), () {
+      if (mounted) {
+        context.read<AppProvider>().clearCurrentAlert();
+        Navigator.of(context).pushNamedAndRemoveUntil(
+          '/home',
+          (route) => false,
+        );
+      }
+    });
   }
 
   @override
@@ -110,19 +121,23 @@ class _AlertDeliveredScreenState extends State<AlertDeliveredScreen>
                               width: 80,
                               height: 80,
                               decoration: BoxDecoration(
-                                color: AppColors.success,
+                                color: AppColors.greenMain,
                                 shape: BoxShape.circle,
-                                boxShadow: [
+                                border: Border.all(
+                                  color: AppColors.ink,
+                                  width: 2.5,
+                                ),
+                                boxShadow: const [
                                   BoxShadow(
-                                    color: AppColors.success.withOpacity(0.35),
-                                    blurRadius: 20,
-                                    offset: const Offset(0, 8),
+                                    color: AppColors.ink,
+                                    blurRadius: 0,
+                                    offset: Offset(4, 4),
                                   ),
                                 ],
                               ),
                               child: const Icon(
                                 Icons.check_rounded,
-                                color: Colors.white,
+                                color: AppColors.ink,
                                 size: 40,
                               ),
                             ),
@@ -144,7 +159,7 @@ class _AlertDeliveredScreenState extends State<AlertDeliveredScreen>
                   'Emergency Alert Delivered',
                   style: GoogleFonts.inter(
                     fontSize: 22,
-                    fontWeight: FontWeight.w800,
+                    fontWeight: FontWeight.w900,
                     color: AppColors.ink,
                     letterSpacing: -0.5,
                   ),
@@ -204,16 +219,9 @@ class _AlertDeliveredScreenState extends State<AlertDeliveredScreen>
                   width: double.infinity,
                   padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
-                    color: AppColors.canvas,
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: AppColors.hairline),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.04),
-                        blurRadius: 12,
-                        offset: const Offset(0, 4),
-                      ),
-                    ],
+                    color: AppColors.white,
+                    borderRadius: BorderRadius.circular(18),
+                    border: Border.all(color: AppColors.ink, width: 1.5),
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -222,8 +230,8 @@ class _AlertDeliveredScreenState extends State<AlertDeliveredScreen>
                         'Alert Details',
                         style: GoogleFonts.inter(
                           fontSize: 13,
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.muted,
+                          fontWeight: FontWeight.w900,
+                          color: AppColors.ink,
                           letterSpacing: 0.5,
                         ),
                       ),
@@ -232,19 +240,19 @@ class _AlertDeliveredScreenState extends State<AlertDeliveredScreen>
                         'Alert ID',
                         alert?.id ?? 'SOS-UNKNOWN',
                       ),
-                      const Divider(height: 20, color: AppColors.hairlineSoft),
+                      const Divider(height: 20, color: Color(0x1F000000)),
                       _alertDetailRow(
                         'Delivery Time',
                         alert?.deliveredAt != null
                             ? formatter.format(alert!.deliveredAt!)
                             : formatter.format(DateTime.now()),
                       ),
-                      const Divider(height: 20, color: AppColors.hairlineSoft),
+                      const Divider(height: 20, color: Color(0x1F000000)),
                       _alertDetailRow(
                         'Relay Count',
                         '${alert?.relayCount ?? 1} device relay',
                       ),
-                      const Divider(height: 20, color: AppColors.hairlineSoft),
+                      const Divider(height: 20, color: Color(0x1F000000)),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
@@ -252,22 +260,24 @@ class _AlertDeliveredScreenState extends State<AlertDeliveredScreen>
                             'Status',
                             style: GoogleFonts.inter(
                               fontSize: 13,
-                              color: AppColors.muted,
+                              fontWeight: FontWeight.w700,
+                              color: AppColors.textLight,
                             ),
                           ),
                           Container(
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 12, vertical: 5),
                             decoration: BoxDecoration(
-                              color: AppColors.successLight,
+                              color: AppColors.greenLight,
                               borderRadius: BorderRadius.circular(20),
+                              border: Border.all(color: AppColors.ink, width: 1),
                             ),
                             child: Text(
                               '✓  Delivered',
                               style: GoogleFonts.inter(
                                 fontSize: 12,
-                                fontWeight: FontWeight.w700,
-                                color: AppColors.success,
+                                fontWeight: FontWeight.w900,
+                                color: AppColors.greenDarker,
                               ),
                             ),
                           ),
@@ -302,11 +312,13 @@ class _AlertDeliveredScreenState extends State<AlertDeliveredScreen>
                       icon: const Icon(Icons.home_rounded, size: 18),
                       label: const Text('Return Home'),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primary,
+                        backgroundColor: AppColors.redMain,
                         foregroundColor: Colors.white,
+                        elevation: 0,
                         minimumSize: const Size(double.infinity, 52),
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(14),
+                          borderRadius: BorderRadius.circular(18),
+                          side: const BorderSide(color: AppColors.ink, width: 1.5),
                         ),
                       ),
                     ),
@@ -322,11 +334,13 @@ class _AlertDeliveredScreenState extends State<AlertDeliveredScreen>
                       icon: const Icon(Icons.history_rounded, size: 18),
                       label: const Text('View History'),
                       style: OutlinedButton.styleFrom(
-                        foregroundColor: AppColors.primary,
-                        side: const BorderSide(color: AppColors.primary),
+                        backgroundColor: AppColors.white,
+                        foregroundColor: AppColors.ink,
+                        elevation: 0,
+                        side: const BorderSide(color: AppColors.ink, width: 1.5),
                         minimumSize: const Size(double.infinity, 52),
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(14),
+                          borderRadius: BorderRadius.circular(18),
                         ),
                       ),
                     ),
@@ -345,20 +359,21 @@ class _AlertDeliveredScreenState extends State<AlertDeliveredScreen>
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.successLight,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.success.withOpacity(0.2)),
+        color: AppColors.white,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: AppColors.ink, width: 1.5),
       ),
       child: Row(
         children: [
           Container(
             width: 36,
             height: 36,
-            decoration: const BoxDecoration(
-              color: AppColors.success,
+            decoration: BoxDecoration(
+              color: AppColors.greenMain,
               shape: BoxShape.circle,
+              border: Border.all(color: AppColors.ink, width: 1),
             ),
-            child: Icon(icon, color: Colors.white, size: 18),
+            child: Icon(icon, color: AppColors.ink, size: 18),
           ),
           const SizedBox(width: 14),
           Expanded(
@@ -369,7 +384,7 @@ class _AlertDeliveredScreenState extends State<AlertDeliveredScreen>
                   title,
                   style: GoogleFonts.inter(
                     fontSize: 13,
-                    fontWeight: FontWeight.w700,
+                    fontWeight: FontWeight.w900,
                     color: AppColors.ink,
                   ),
                 ),
@@ -377,13 +392,14 @@ class _AlertDeliveredScreenState extends State<AlertDeliveredScreen>
                   subtitle,
                   style: GoogleFonts.inter(
                     fontSize: 11,
-                    color: AppColors.muted,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.textMuted,
                   ),
                 ),
               ],
             ),
           ),
-          const Icon(Icons.check_circle_rounded, color: AppColors.success, size: 20),
+          const Icon(Icons.check_circle_rounded, color: AppColors.greenText, size: 20),
         ],
       ),
     );
@@ -395,13 +411,17 @@ class _AlertDeliveredScreenState extends State<AlertDeliveredScreen>
       children: [
         Text(
           label,
-          style: GoogleFonts.inter(fontSize: 13, color: AppColors.muted),
+          style: GoogleFonts.inter(
+            fontSize: 13,
+            fontWeight: FontWeight.w700,
+            color: AppColors.textLight,
+          ),
         ),
         Text(
           value,
           style: GoogleFonts.inter(
             fontSize: 13,
-            fontWeight: FontWeight.w600,
+            fontWeight: FontWeight.w900,
             color: AppColors.ink,
           ),
         ),
