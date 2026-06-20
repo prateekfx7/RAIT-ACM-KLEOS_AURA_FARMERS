@@ -6,7 +6,7 @@
 
 An offline-first emergency communication system that works when everything else doesn't. Using mesh relay technology and decentralized networks, SheShield Mesh keeps emergency signals alive through network shutdowns, disasters, and remote-area blackouts.
 <p align="center">
-  <img src="/Screenshot 2026-06-20 113505" alt="SheShield Mesh Homepage" width="1000">
+  <img src="RAIT-ACM-KLEOS_AURA_FARMERS/Screenshot 2026-06-20 113505" alt="SheShield Mesh Homepage" width="1000">
 </p>
 
 ---
